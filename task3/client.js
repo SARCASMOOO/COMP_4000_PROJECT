@@ -24,10 +24,11 @@ function main() {
 
   const client = new hello_proto.Greeter(ADDRESS, grpc.credentials.createInsecure());
 
-  const  user = 'World';
+  const msg1 = 'Hello ';
+  const msg2 = 'World';
 	 
-  client.sayHello({name: user}, function(err, response) {
-    console.log('Greeting:', response.message);
+  client.sayHello({message_1: msg1, message_2: msg2}, function(err, response) {
+    console.log('Greeting:', response.message_3);
   });
 }
 

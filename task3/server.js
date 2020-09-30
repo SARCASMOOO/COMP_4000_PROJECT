@@ -18,8 +18,9 @@ const hello_proto = grpc.loadPackageDefinition(packageDefinition).helloworld;
 
 // RPC Method
 function sayHello(call, callback) {
-  console.log('Hello ' + call.request.name);
-  callback(null, {message: 'Hello ' + call.request.name});
+  console.log('Message 1: ' + call.request.message_1);
+  console.log('Message 2: ' + call.request.message_2);
+  callback(null, {message_3: 'Message receive'});
 }
 
 // Server
@@ -27,7 +28,7 @@ function main() {
   const PORT = ':10000';
   const DOMAIN = 'localhost'
   const ADDRESS = DOMAIN + PORT;
-  var server = new grpc.Server();
+  const server = new grpc.Server();
   server.addService(hello_proto.Greeter.service, {sayHello: sayHello});
   server.bind(ADDRESS, grpc.ServerCredentials.createInsecure());
   server.start();
