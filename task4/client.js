@@ -1,8 +1,6 @@
 // Paths
 const PROTO_PATH = __dirname + '/helloworld.proto';
-// const secure_key = __dirname + '/cert/comp4000.com.key';
 const secureCertificate = __dirname + '/cert/comp4000.com.crt';
-
 
 
 // Modules
@@ -43,11 +41,11 @@ function getUserPassword() {
 
     let attempts = 0;
 
-    while(attempts < 3) {
+    while (attempts < 3) {
         const password = readInput(enterPasswordPrompt);
         const confirmPassword = readInput(enterConfirmPasswordPrompt);
 
-        if(validatePassword(password, confirmPassword)) return password;
+        if (validatePassword(password, confirmPassword)) return password;
         console.log(passwordsDidNotMatch);
         attempts++;
     }
@@ -72,6 +70,8 @@ function getUserCredentials() {
     // NOTE: For testing purposes the username and password will be automatically assigned.
     console.log('Username is: ' + user.userName);
     console.log('Password is: ' + user.password);
+
+    return user;
 }
 
 const createSecureContext = () => {
@@ -87,13 +87,18 @@ function main() {
     const DOMAIN = 'localhost'
     const ADDRESS = DOMAIN + PORT;
 
-    const sslCreds = createSecureContext();
-    const client = new hello_proto.Greeter(ADDRESS, sslCreds);
+    // TODO: Get secure message working
+    // const sslCreds = createSecureContext();
 
-    getUserCredentials();
+    const client = new hello_proto.Greeter(ADDRESS, grpc.credentials.createInsecure());
 
-    //  client.sayHello({message_1: msg1, message_2: msg2}, function(err, response) {
-    //  console.log('Greeting:', response.message_3); d
+    const user = getUserCredentials();
+
+    client.SignUp({username: user.userName, password: user.password},
+        function (err, response) {
+            console.log('Message: :', response.message);
+            console.log('Response: :', response.status);
+        });
 }
 
 main();
