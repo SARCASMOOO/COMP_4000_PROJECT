@@ -70,14 +70,22 @@ function signUp(call, callback) {
     });
 }
 
+function generateExpirationDate() {
+    const currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() + 3);
+    return currentDate;
+}
+
 function logIn(call, callback) {
     const BCRYPT_SALT_ROUNDS = 12;
     const tempUser = {username: call.request.username, password: call.request.password};
 
     clientsCollection.findOne({username: tempUser.username}).then(user => {
         function handleUserToken(e, token) {
+            const expirationDate = generateExpirationDate();
+
             clientsCollection.updateOne(
-                {username: user.username}, {$set : {token: token}}
+                {username: user.username}, {$set : {token: token, expirationDate: expirationDate}}
             );
 
             logInReply = {status: 1, message: token};
