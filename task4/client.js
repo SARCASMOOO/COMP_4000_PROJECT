@@ -33,7 +33,7 @@ function getUserName() {
     return readInput(enterUserNamePrompt);
 }
 
-function getUserPassword() {
+function getUserPasswordSignUp() {
     const enterPasswordPrompt = 'Please enter your password: ';
     const enterConfirmPasswordPrompt = 'Confirm Password';
     const attemptsExceeded = 'You exceeded three attempts. Exiting.';
@@ -55,17 +55,37 @@ function getUserPassword() {
     process.exit(1);
 }
 
-function getUserCredentials() {
+function getUserCredentialsLogin() {
+    const user = {
+        userName: null,
+        password: null
+    };
+
+    // console.log('Login');
+    // user.userName = getUserName();
+    // user.password = readInput('Password');
+
+    user.userName = 'test_user_bcrypt11';
+    user.password = 'test_password';
+
+    // NOTE: For testing purposes the username and password will be automatically assigned.
+    console.log('Username is: ' + user.userName);
+    console.log('Password is: ' + user.password);
+
+    return user;
+}
+
+function getUserCredentialsSignUp() {
     const user = {
         userName: null,
         password: null
     };
 
     // user.userName = getUserName();
-    // user.password = getUserPassword();
+    // user.password = getUserPasswordSignUp();
 
-    user.userName = 'test_user_bcrypt1';
-    user.password = 'test_password';
+    user.userName = 'test_user_bcrypt11';
+    user.password = 'test_password1';
 
     // NOTE: For testing purposes the username and password will be automatically assigned.
     console.log('Username is: ' + user.userName);
@@ -82,6 +102,24 @@ const createSecureContext = () => {
     return grpc.credentials.createSsl(options.cert);
 }
 
+function signUp(client) {
+    const user = getUserCredentialsSignUp();
+    client.SignUp({username: user.userName, password: user.password},
+        function (err, response) {
+            console.log('Message: :', response.message);
+            console.log('Response: :', response.status);
+        });
+}
+
+function login(client) {
+    const user = getUserCredentialsLogin();
+    client.LogIn({username: user.userName, password: user.password},
+        function (err, response) {
+            console.log('Message: :', response.message);
+            console.log('Response: :', response.status);
+        });
+}
+
 function main() {
     const PORT = ':10000';
     const DOMAIN = 'localhost'
@@ -92,13 +130,8 @@ function main() {
 
     const client = new hello_proto.Greeter(ADDRESS, grpc.credentials.createInsecure());
 
-    const user = getUserCredentials();
-
-    client.SignUp({username: user.userName, password: user.password},
-        function (err, response) {
-            console.log('Message: :', response.message);
-            console.log('Response: :', response.status);
-        });
+    // signUp(client);
+    login(client);
 }
 
 main();
