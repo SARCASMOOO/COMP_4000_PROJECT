@@ -115,7 +115,7 @@ function login(client) {
     const user = getUserCredentialsLogin();
     client.LogIn({username: user.userName, password: user.password},
         function (err, response) {
-            console.log('Message: :', response.message);
+            console.log('Token: :', response.message);
             console.log('Response: :', response.status);
         });
 }

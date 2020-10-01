@@ -8,6 +8,7 @@ const protoLoader = require('@grpc/proto-loader');
 const fs = require('fs');
 const {MongoClient} = require('mongodb');
 const bcrypt = require('bcrypt');
+const crpyto = require('crypto');
 
 // Globals
 const uri = "mongodb://admin:admin@localhost:27017/comp4000";
@@ -32,6 +33,15 @@ const packageDefinition = protoLoader.loadSync(
     });
 
 const hello_proto = grpc.loadPackageDefinition(packageDefinition).helloworld;
+
+function generareRandomToken(callback) {
+    const bitSize = 64;
+
+    crpyto.randomBytes(bitSize, function (e, buffer) {
+        const token = buffer.toString('hex');
+        callback(e, token);
+    });
+}
 
 // RPC Method
 function signUp(call, callback) {
@@ -61,26 +71,38 @@ function signUp(call, callback) {
 }
 
 function logIn(call, callback) {
-    console.log('Received username: ' + call.request.username);
-    console.log('Received password: ' + call.request.password);
     const BCRYPT_SALT_ROUNDS = 12;
     const tempUser = {username: call.request.username, password: call.request.password};
 
     clientsCollection.findOne({username: tempUser.username}).then(user => {
-        if(user) {
-            bcrypt.compare(tempUser.password, user.password, function(err, isMatch) {
+        function handleUserToken(e, token) {
+            clientsCollection.updateOne(
+                {username: user.username}, {$set : {token: token}}
+            );
+
+            logInReply = {status: 1, message: token};
+            callback(null, logInReply);
+        }
+
+        if (user) {
+            bcrypt.compare(tempUser.password, user.password, function (err, isMatch) {
                 console.log(isMatch);
                 if (err) {
-                    throw err
+                    logInReply = {status: -1, message: 'Failed something went wrong.'};
+                    callback(null, logInReply);
                 } else if (isMatch) {
-                    console.log("Password is a match!")
+                    generareRandomToken(handleUserToken);
                 } else {
-                    console.log("Password is not a match!")
+                    logInReply = {status: 0, message: 'Password is not a match!'};
+                    callback(null, logInReply);
                 }
             })
         } else {
-            console.log('User not found')
+            logInReply = {status: 0, message: 'User was not found.'};
+            callback(null, logInReply);
         }
+
+
     });
 }
 
