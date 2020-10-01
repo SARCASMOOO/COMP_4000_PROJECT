@@ -64,7 +64,7 @@ function getUserCredentials() {
     // user.userName = getUserName();
     // user.password = getUserPassword();
 
-    user.userName = 'test_user';
+    user.userName = 'test_user_bcrypt1';
     user.password = 'test_password';
 
     // NOTE: For testing purposes the username and password will be automatically assigned.
@@ -102,3 +102,4 @@ function main() {
 }
 
 main();
+

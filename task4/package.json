@@ -11,10 +11,12 @@
   "dependencies": {
     "@grpc/proto-loader": "^0.5.5",
     "async": "^3.2.0",
+    "bcrypt": "^5.0.0",
     "google-protobuf": "^3.13.0",
     "grpc": "^1.24.3",
     "lodash": "^4.17.20",
     "minimist": "^1.2.5",
+    "mongodb": "^3.6.2",
     "readline-sync": "^1.4.10"
   }
 }

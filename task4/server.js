@@ -6,6 +6,20 @@ const secureCertificate = __dirname + '/cert/comp4000.com.crt';
 const grpc = require('grpc');
 const protoLoader = require('@grpc/proto-loader');
 const fs = require('fs');
+const {MongoClient} = require('mongodb');
+const bcrypt = require('bcrypt');
+
+// Globals
+const uri = "mongodb://admin:admin@localhost:27017/comp4000";
+let clientsCollection;
+let mongoClient;
+
+MongoClient.connect(uri, (err, client) => {
+    const db = client.db('comp4000');
+    mongoClient = client;
+    clientsCollection = db.collection('clients');
+    main();
+});
 
 const packageDefinition = protoLoader.loadSync(
     PROTO_PATH,
@@ -19,14 +33,29 @@ const packageDefinition = protoLoader.loadSync(
 
 const hello_proto = grpc.loadPackageDefinition(packageDefinition).helloworld;
 
-
 // RPC Method
 function signUp(call, callback) {
     console.log('Received username: ' + call.request.username);
     console.log('Received password: ' + call.request.password);
+    const BCRYPT_SALT_ROUNDS = 12;
+    const tempUser = {username: call.request.username, password: call.request.password};
 
-    const signUpReply = {status: 1, message: 'Success'};
-    callback(null, signUpReply);
+    clientsCollection.find({username: call.request.username}).limit(1).count().then(count => {
+        let signUpReply;
+        if (count < 1) {
+            bcrypt.hash(tempUser.password, BCRYPT_SALT_ROUNDS).then(hashedPwd => {
+                tempUser.password = hashedPwd;
+
+                clientsCollection.insert(tempUser).then(() => {
+                    signUpReply = {status: 1, message: 'Success'};
+                    callback(null, signUpReply);
+                });
+            });
+        } else {
+            signUpReply = {status: 0, message: 'Failed user already exists'};
+            callback(null, signUpReply);
+        }
+    });
 }
 
 // Server
@@ -45,4 +74,4 @@ function main() {
     server.start();
 }
 
-main()
+
