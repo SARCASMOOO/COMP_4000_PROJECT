@@ -111,9 +111,28 @@ function signUp(client) {
         });
 }
 
-function login(client) {
+function login(client, callback) {
     const user = getUserCredentialsLogin();
     client.LogIn({username: user.userName, password: user.password},
+        function (e, response) {
+            console.log('Token: :', response.message);
+            console.log('Response: :', response.status);
+            const token = response.message;
+            user.token = token;
+            callback(e, user);
+        });
+}
+
+function updatePassword(client, user) {
+    client.updatePassword({username: user.userName, token: user.token},
+        function (err, response) {
+            console.log('Token: :', response.message);
+            console.log('Response: :', response.status);
+        });
+}
+
+function deleteAccount(client, user) {
+    client.deleteAccount({username: user.userName, password: user.token},
         function (err, response) {
             console.log('Token: :', response.message);
             console.log('Response: :', response.status);
@@ -131,7 +150,11 @@ function main() {
     const client = new hello_proto.Greeter(ADDRESS, grpc.credentials.createInsecure());
 
     // signUp(client);
-    login(client);
+    // TODO: Strucutre this better so you can login and the user will be stored on the
+    // client side.
+    // login(client, updatePassword);
+    updatePassword(client);
+    deleteAccount(client);
 }
 
 main();

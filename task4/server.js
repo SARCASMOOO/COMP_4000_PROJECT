@@ -43,6 +43,12 @@ function generareRandomToken(callback) {
     });
 }
 
+function generateExpirationDate() {
+    const currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() + 3);
+    return currentDate;
+}
+
 // RPC Method
 function signUp(call, callback) {
     console.log('Received username: ' + call.request.username);
@@ -70,12 +76,6 @@ function signUp(call, callback) {
     });
 }
 
-function generateExpirationDate() {
-    const currentDate = new Date();
-    currentDate.setDate(currentDate.getDate() + 3);
-    return currentDate;
-}
-
 function logIn(call, callback) {
     const BCRYPT_SALT_ROUNDS = 12;
     const tempUser = {username: call.request.username, password: call.request.password};
@@ -85,7 +85,7 @@ function logIn(call, callback) {
             const expirationDate = generateExpirationDate();
 
             clientsCollection.updateOne(
-                {username: user.username}, {$set : {token: token, expirationDate: expirationDate}}
+                {username: user.username}, {$set: {token: token, expirationDate: expirationDate}}
             );
 
             logInReply = {status: 1, message: token};
@@ -114,13 +114,30 @@ function logIn(call, callback) {
     });
 }
 
+function isAuthenticated() {
+// TODO: Check if user has permission for an action
+}
+
+function updatePassword() {
+//  TODO: Update password
+}
+
+function deleteAccount() {
+// Delete account
+}
+
 // Server
 function main() {
     const PORT = ':10000';
     const DOMAIN = 'localhost'
     const ADDRESS = DOMAIN + PORT;
     const server = new grpc.Server();
-    const rpcMessages = {signUp: signUp, logIn: logIn};
+    const rpcMessages = {
+        ignUp: signUp,
+        logIn: logIn,
+        updatePassword: updatePassword,
+        deleteAccount: deleteAccount
+    };
 
     // const options = {cert: fs.readFileSync(secureCertificate)};
     // TODO: Change this to use TLS / SSL
