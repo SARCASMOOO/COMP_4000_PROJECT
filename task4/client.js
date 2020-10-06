@@ -149,12 +149,12 @@ function main() {
 
     const client = new hello_proto.Greeter(ADDRESS, grpc.credentials.createInsecure());
 
-    // signUp(client);
+    signUp(client);
     // TODO: Strucutre this better so you can login and the user will be stored on the
     // client side.
     // login(client, updatePassword);
-    updatePassword(client);
-    deleteAccount(client);
+    // updatePassword(client);
+    // deleteAccount(client);
 }
 
 main();

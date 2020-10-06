@@ -51,27 +51,29 @@ function generateExpirationDate() {
 
 // RPC Method
 function signUp(call, callback) {
-    console.log('Received username: ' + call.request.username);
-    console.log('Received password: ' + call.request.password);
-    const BCRYPT_SALT_ROUNDS = 12;
-    const tempUser = {username: call.request.username, password: call.request.password};
+    const user = {username: call.request.username, password: call.request.password};
+
+    const saveUser = () => {
+        const BCRYPT_SALT_ROUNDS = 12;
+        bcrypt.hash(user.password, BCRYPT_SALT_ROUNDS).then(hashedPwd => {
+            user.password = hashedPwd;
+            clientsCollection.insert(user).then(() => {
+                signUpReply = {status: 1, message: 'Success'};
+                callback(null, signUpReply);
+            });
+        });
+    };
+
+    const rejectSaveUser = () => {
+        const signUpReply = {status: 0, message: 'Failed user already exists'};
+        callback(null, signUpReply);
+    }
 
     clientsCollection.find({username: call.request.username}).limit(1).count().then(count => {
-        let signUpReply;
         if (count < 1) {
-            bcrypt.hash(tempUser.password, BCRYPT_SALT_ROUNDS).then(hashedPwd => {
-                tempUser.password = hashedPwd;
-
-                console.log('HAshed password sign up is: ', tempUser.password);
-
-                clientsCollection.insert(tempUser).then(() => {
-                    signUpReply = {status: 1, message: 'Success'};
-                    callback(null, signUpReply);
-                });
-            });
+            saveUser();
         } else {
-            signUpReply = {status: 0, message: 'Failed user already exists'};
-            callback(null, signUpReply);
+            rejectSaveUser();
         }
     });
 }
@@ -126,26 +128,28 @@ function deleteAccount() {
 // Delete account
 }
 
-// Server
-function main() {
-    const PORT = ':10000';
-    const DOMAIN = 'localhost'
+function startServer(DOMAIN, PORT) {
     const ADDRESS = DOMAIN + PORT;
     const server = new grpc.Server();
+
     const rpcMessages = {
-        ignUp: signUp,
+        signUp: signUp,
         logIn: logIn,
         updatePassword: updatePassword,
         deleteAccount: deleteAccount
     };
 
-    // const options = {cert: fs.readFileSync(secureCertificate)};
-    // TODO: Change this to use TLS / SSL
-    // const sslCertificate = grpc.credentials.createSsl(grpc.credentials.createInsecure());
-
     server.addService(hello_proto.Greeter.service, rpcMessages);
     server.bind(ADDRESS, grpc.ServerCredentials.createInsecure());
     server.start();
+
+    return server;
+}
+
+function main() {
+    const PORT = ':10000';
+    const DOMAIN = 'localhost';
+    const server = startServer(DOMAIN, PORT);
 }
 
 
