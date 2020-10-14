@@ -10,8 +10,14 @@ package helloworld;
 service Greeter {
   rpc SignUp (UserInfoRequest) returns (UserInfoReply) {}
   rpc LogIn (UserInfoRequest) returns (UserInfoReply) {}
-  rpc updatePassword (AccountRequest) returns (UserInfoReply) {}
+  rpc updatePassword (PasswordReset) returns (UserInfoReply) {}
   rpc deleteAccount (AccountRequest) returns (UserInfoReply) {}
+}
+
+message PasswordReset {
+    string username = 1;
+    string token = 2;
+    string newPassword = 3;
 }
 
 message AccountRequest {
