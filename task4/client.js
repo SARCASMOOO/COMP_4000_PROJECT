@@ -59,14 +59,13 @@ function getUserPasswordSignUp() {
 function getUserCredentialsLogin() {
     const user = {userName: null, password: null};
 
-    // console.log('Login');
-    // user.userName = getUserName();
-    // user.password = readInput('Password');
+    user.userName = getUserName();
+    user.password = readInput('Password');
 
-    user.userName = 'test_user_bcrypt11';
-    user.password = 'a';
+    // For testing purposes
+    // user.userName = 'test_user_bcrypt11';
+    // user.password = 'a';
 
-    // NOTE: For testing purposes the username and password will be automatically assigned.
     console.log('Username is: ' + user.userName);
     console.log('Password is: ' + user.password);
 
@@ -79,13 +78,13 @@ function getUserCredentialsSignUp() {
         password: null
     };
 
-    // user.userName = getUserName();
-    // user.password = getUserPasswordSignUp();
+    user.userName = getUserName();
+    user.password = getUserPasswordSignUp();
 
-    user.userName = 'test_user_bcrypt004';
-    user.password = 'test_password1';
+    // Used for testing
+    // user.userName = 'test_user_bcrypt004';
+    // user.password = 'test_password1';
 
-    // NOTE: For testing purposes the username and password will be automatically assigned.
     console.log('Username is: ' + user.userName);
     console.log('Password is: ' + user.password);
 
@@ -104,6 +103,7 @@ function signUp(client) {
                 console.log('Message: :', response.message);
                 curentUser = user;
             }
+            update(client);
         });
 }
 
@@ -123,41 +123,49 @@ function login(client) {
                 curentUser = user;
                 console.log(curentUser);
             }
+            update(client);
         });
 }
 
 function updatePassword(client, user) {
     const newPassword = getUserPasswordSignUp();
 
-    if(!curentUser) {
+    if (!curentUser) {
         console.log('Please login before trying to update your password.');
         console.log(curentUser);
-        return;
+        update(client);
+    } else {
+        client.updatePassword({username: curentUser.userName, token: curentUser.token, newPassword: newPassword},
+            function (err, response) {
+                if (response.status === 0) {
+                    console.log('Failed to update password. Message: ', response.message);
+                } else {
+                    console.log('Response: :', response.message);
+                    curentUser.token = null;
+                }
+                update(client);
+            });
     }
-
-    client.updatePassword({username: curentUser.userName, token: curentUser.token, newPassword: newPassword},
-        function (err, response) {
-            if (response.status === 0) {
-                console.log('Failed to update password. Message: ', response.message);
-            } else {
-                console.log('Response: :', response.message);
-                curentUser.token = null;
-            }
-        });
 }
 
 function deleteAccount(client) {
-    if(!curentUser) {
+    if (!curentUser) {
         console.log('Please login before trying to delete your account.');
-        return;
+        update(client);
+    } else {
+        client.deleteAccount({username: curentUser.userName, token: curentUser.token},
+            function (err, response) {
+                if (response.status === 1) {
+                    console.log(curentUser.userName, ' was removed.')
+                } else {
+                    console.log('Failed to remove account: ', response.message)
+                }
+                update(client);
+            });
     }
-
-    client.deleteAccount({username: curentUser.userName, token: curentUser.token},
-        function (err, response) {
-            console.log('Token: :', response.message);
-            console.log('Response: :', response.status);
-        });
 }
+
+let globalClient;
 
 function main() {
     const PORT = ':10001';
@@ -165,13 +173,41 @@ function main() {
     const ADDRESS = DOMAIN + PORT;
 
     const client = new hello_proto.Greeter(ADDRESS, grpc.credentials.createInsecure());
-
-    // signUp(client);
-    login(client);
-    // setTimeout(() => updatePassword(client), 1000);
-    setTimeout(() => deleteAccount(client), 1000);
-    // isAuthenticated(client);
+    globalClient = client;
+    update(client);
 }
 
 main();
 
+
+function waitForDuration(timeDelay) {
+    var currentTime = new Date().getTime();
+    while (new Date().getTime() < currentTime + timeDelay) { /* do nothing */
+    }
+}
+
+function update(client) {
+    let command;
+    let counter = 0;
+    const msg = 'Please type one of the following commands: 0 to exit, 1 for login, 2 for signup, 3 to update password, 4 to remove account.';
+    command = readInput(msg);
+    switch (command) {
+        case "0":
+            process.exit(1);
+            break;
+        case "1":
+            login(client);
+            break;
+        case "2":
+            signUp(client);
+            break;
+        case "3":
+            updatePassword(client);
+            break;
+        case "4":
+            deleteAccount(client);
+            break;
+        default:
+            console.log('Invalid option. Please select one of the options provided.');
+    }
+}

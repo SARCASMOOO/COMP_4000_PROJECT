@@ -146,17 +146,17 @@ function deleteAccount(call, callback) {
     });
 }
 
-// Not implemented yet.
-
-function isAuthenticated() {
-    console.log('Is authenticated');
-// TODO: Check if user has permission for an action
-}
-
 function addUserToCollection(user, callback) {
     clientsCollection.insertOne(user).then(() => {
         const response = {status: 1, message: 'Success'};
         callback(null, response);
     });
 }
+
+
+// This function is not being used.
+function isAuthenticated() {
+    console.log('Is authenticated');
+}
+
 
