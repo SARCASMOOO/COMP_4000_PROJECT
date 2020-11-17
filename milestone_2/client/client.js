@@ -1,11 +1,15 @@
 // Paths
-const PROTO_PATH = __dirname + '/helloworld.proto';
+const PROTO_PATH = __dirname + '/../helloworld.proto';
 
 // Modules
 const readlineSync = require("readline-sync");
 const grpc = require('grpc');
 const protoLoader = require('@grpc/proto-loader');
 const fs = require('fs');
+const Fuse = require('fuse-native');
+
+// Helper functions
+const ops = require("./fileSystem").ops;
 
 // Config
 const packageDefinition = protoLoader.loadSync(
@@ -107,7 +111,6 @@ function signUp(client) {
         });
 }
 
-
 function login(client) {
     const user = getUserCredentialsLogin();
     client.LogIn({username: user.userName, password: user.password},
@@ -174,6 +177,7 @@ function main() {
 
     const client = new hello_proto.Greeter(ADDRESS, grpc.credentials.createInsecure());
     globalClient = client;
+
     start();
     // update(client);
 }
@@ -181,13 +185,23 @@ function main() {
 main();
 
 function start() {
-    console.log('Start');
-}
+    console.log(ops);
+    const fuse = new Fuse('./fuse', ops, { force: false, debug: false, displayFolder: true });
 
-function waitForDuration(timeDelay) {
-    var currentTime = new Date().getTime();
-    while (new Date().getTime() < currentTime + timeDelay) { /* do nothing */
-    }
+    fuse.mount(err => {
+        if (err) throw err
+        console.log('filesystem mounted on ' + fuse.mnt)
+    });
+
+    process.once('SIGINT', function () {
+        fuse.unmount(err => {
+            if (err) {
+                console.log('filesystem at ' + fuse.mnt + ' not unmounted', err)
+            } else {
+                console.log('filesystem at ' + fuse.mnt + ' unmounted')
+            }
+        })
+    })
 }
 
 function update(client) {
