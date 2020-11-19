@@ -178,14 +178,15 @@ function main() {
     const client = new hello_proto.Greeter(ADDRESS, grpc.credentials.createInsecure());
     globalClient = client;
 
-    start();
+    start(client);
     // update(client);
 }
 
 main();
 
-function start() {
+function start(client) {
     console.log(ops);
+    ops.setClient(client);
     const fuse = new Fuse('./fuse', ops, { force: false, debug: false, displayFolder: true });
 
     fuse.mount(err => {
