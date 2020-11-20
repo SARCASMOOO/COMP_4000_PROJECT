@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "google/protobuf/timestamp.proto";
 
 option java_multiple_files = true;
 option java_package = "io.grpc.examples.helloworld";
@@ -12,12 +13,166 @@ service Greeter {
   rpc LogIn (UserInfoRequest) returns (UserInfoReply) {}
   rpc updatePassword (PasswordReset) returns (UserInfoReply) {}
   rpc deleteAccount (AccountRequest) returns (UserInfoReply) {}
+
+  // Filesystem Calls
+  rpc readdir (ReaddirMsg) returns (ReaddirReply) {}
+  rpc access (AccessMsg) returns (AccessReply) {}
+  rpc getattr (GetattrMsg) returns (GetattrReply) {}
+  rpc open (OpenMsg) returns (OpenReply) {}
+
+  rpc read (ReadMsg) returns (ReadReply) {}
+  rpc opendir (OpendirMsg) returns (OpendirReply) {}
+  rpc statfs (StatfsMsg) returns (StatfsReply) {}
+  rpc create (CreateMsg) returns (CreateReply) {}
+
+  rpc write (WriteMsg) returns (WriteReply) {}
+  rpc unlink (UnlinkMsg) returns (UnlinkReply) {}
+  rpc mkdir (MkdirMsg) returns (MkdirReply) {}
+  rpc rmdir (RmdirMsg) returns (RmdirReply) {}
+
+  rpc chmod (ChmodMsg) returns (ChmodReply) {}
 }
 
+// Filesystem Messages
+message ReaddirMsg {
+  string path = 1;
+}
+
+message ReaddirReply {
+  repeated string filenames = 1;
+}
+
+message AccessMsg {
+  string path = 1;
+  int32 mode = 2;
+}
+
+message AccessReply {
+  int32 response = 1;
+}
+
+message GetattrMsg {
+  string path = 1;
+}
+
+// TODO: stat is an object
+message GetattrReply {
+  oneof res {
+    StatObject tempStat = 1;
+    int32 response = 2;
+  }
+}
+
+message OpenMsg {
+  string path = 1;
+  int32 flags = 2;
+}
+
+message OpenReply {
+  int32 fd = 1;
+}
+
+// FIXME: Buffer might be the wrong type.
+message ReadMsg {
+  string path = 1;
+  int32 fd = 2;
+  bytes buf = 3;
+  int32 len = 4;
+  int32 pos = 5;
+}
+
+message ReadReply {
+  int32 size = 1;
+  bytes buf = 2;
+}
+
+message OpendirMsg {
+  string path = 1;
+  int32 flags = 2;
+}
+
+message OpendirReply {}
+
+message StatfsMsg {
+  string path = 1;
+}
+
+message StatfsReply {
+    StatObject stat = 1;
+}
+
+message CreateMsg {
+  string path = 1;
+  int32 mode = 2;
+}
+
+message CreateReply {}
+
+// FIXME: Buffer might be the wrong type.
+message WriteMsg {
+  string path = 1;
+  int32 fd = 2;
+  int32 buffer = 3;
+  int32 length = 4;
+  int32 position = 5;
+}
+
+message WriteReply {}
+
+message UnlinkMsg {
+  string path = 1;
+}
+
+message UnlinkReply {}
+
+message MkdirMsg {
+  string path = 1;
+  int32 mode = 2;
+}
+
+message MkdirReply {}
+
+message RmdirMsg {
+  string path = 1;
+}
+
+message RmdirReply {}
+
+message ChmodMsg {
+  string path = 1;
+  int32 mode = 2;
+}
+
+message ChmodReply {}
+
+// Objects
+// NOTE: The last 4 are date types.
+message StatObject {
+  int64 dev = 1;
+  int64 ino = 2;
+  int64 mode = 3;
+  int64 nlink = 4;
+  int64 uid = 5;
+  int64 gid = 6;
+  int64 rdev = 7;
+  int64 size = 8;
+  int64 blksize = 9;
+  int64 blocks = 10;
+  int64 atimeMs = 11;
+  int64 mtimeMs = 12;
+  int64 ctimeMs = 13;
+  int64 birthtimeMs = 14;
+  google.protobuf.Timestamp atime = 15;
+  google.protobuf.Timestamp mtime = 16;
+  google.protobuf.Timestamp ctime = 17;
+  google.protobuf.Timestamp birthtime = 18;
+}
+
+// User messages
 message PasswordReset {
-    string username = 1;
-    string token = 2;
-    string newPassword = 3;
+  string username = 1;
+  string token = 2;
+  string newPassword = 3;
 }
 
 message AccountRequest {

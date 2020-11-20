@@ -11,7 +11,6 @@ const {MongoClient} = require('mongodb');
 
 // Helper classes
 const user = require('./user');
-const fileSystem = require('./fileSystem');
 
 // Globals
 const URI = "mongodb://admin:admin@localhost:27017/comp4000";
@@ -57,20 +56,7 @@ function startServer(DOMAIN, PORT, hello_proto) {
         logIn: user.logIn,
         isAuthenticated: user.isAuthenticated,
         updatePassword: user.updatePassword,
-        deleteAccount: user.deleteAccount,
-        readdir: fileSystem.readdir,
-        access: fileSystem.access,
-        getattr: fileSystem.getattr,
-        open: fileSystem.open,
-        read: fileSystem.read,
-        opendir: fileSystem.opendir,
-        statfs: fileSystem.statfs,
-        create: fileSystem.create,
-        write: fileSystem.write,
-        unlink: fileSystem.unlink,
-        mkdir: fileSystem.mkdir,
-        rmdir: fileSystem.rmdir,
-        chmod: fileSystem.chmod,
+        deleteAccount: user.deleteAccount
     };
 
     server.addService(hello_proto.Greeter.service, rpcMessages);

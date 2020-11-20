@@ -49,7 +49,6 @@ function logIn(call, callback) {
     console.log('Log in');
     const BCRYPT_SALT_ROUNDS = 12;
     const tempUser = {username: call.request.username, password: call.request.password};
-    let logInReply;
 
     clientsCollection.findOne({username: tempUser.username}).then(user => {
         function handleUserToken(e, token) {

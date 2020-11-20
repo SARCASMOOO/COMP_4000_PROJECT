@@ -13,29 +13,28 @@ const ops = {
             function (err, response) {
                 if (err) console.log(err);
                 console.log('Response from readdir');
-                console.log(typeof response);
-                console.log(response.filenames);
-                cb(0, response.filenames);
+                console.log(response);
+                cb(0, response);
             });
     },
     access: function (path, mode, cb) {
-        console.log('access', path, mode);
-        cb(0);
+        console.log('access');
+        client.access({path: path, mode: mode},
+            function (err, response) {
+                if (err) console.log(err);
+                console.log('Response from access');
+                console.log(response);
+                cb(0);
+            });
     },
     getattr: function (path, cb) {
         console.log('getattr');
         client.getattr({path: path},
             function (err, response) {
                 if (err) console.log(err);
-
-                if (response.tempStat) {
-                    console.log('here2');
-                    response.tempStat.atime = new Date(response.tempStat.atime);
-                    response.tempStat.mtime = new Date(response.tempStat.mtime);
-                    response.tempStat.ctime = new Date(response.tempStat.ctime);
-                    response.tempStat.birthtime = new Date(response.tempStat.birthtime);
-
-                    process.nextTick(cb, null, response.tempStat);
+                console.log('Response from getattr', path);
+                if(response.stat) {
+                    process.nextTick(cb, null, response.stat);
                 } else {
                     process.nextTick(cb, Fuse.ENOENT);
                 }
@@ -47,31 +46,21 @@ const ops = {
             function (err, response) {
                 if (err) console.log(err);
                 console.log('Response from open');
-                console.log(response.fd);
-                cb(0, response.fd);
+                process.nextTick(cb, 0, response.fd);
             });
     },
     read: function (path, fd, buf, len, pos, cb) {
-        // TODO: This is not working
-        console.log('start read', path, fd, buf, len, pos);
-        console.log('buf on start read', buf);
-
-        console.log('hhhhhhhhh');
+        console.log('read');
         client.read({path: path, fd: fd, buf: buf, len: len, pos: pos},
             function (err, response) {
                 if (err) console.log(err);
-                console.log('Response from read1111');
-                console.log('Before copy.')
-                console.log('Local buf', buf);
-                console.log('Reponse buf', response.buf);
-                buf.set(response.buf);
-                console.log('After copy.')
-                console.log('Local buf', buf);
-                console.log('Reponse buf', response.buf);
-                cb(0, buf.length);
+                console.log('read', path, fd, buf, len, pos);
+                console.log('Response from read');
+                process.nextTick(cb, response.size);
             });
     },
     opendir: function opendir(path, flags, cb) {
+        console.log('opendir');
         client.opendir({path: path, flags: flags},
             function (err, response) {
                 if (err) console.log(err);
@@ -80,63 +69,66 @@ const ops = {
             });
     },
     statfs: function (path, cb) {
+        console.log('statfs');
         client.statfs({path: path},
             function (err, response) {
                 if (err) console.log(err);
-                response.stat.atime = new Date(response.stat.atime);
-                response.stat.mtime = new Date(response.stat.mtime);
-                response.stat.ctime = new Date(response.stat.ctime);
-                response.stat.birthtime = new Date(response.stat.birthtime);
-
-                cb(0, response.stat);
+                console.log('Response from statfs');
+                // console.log(response);
+                cb(0, response.tempStat);
             });
     },
     create: function (path, mode, cb) {
-        console.log('create', path, mode);
-        fs.writeFileSync('./real' + path, '', {mode: mode});
-        cb(0);
+        console.log('create');
+        client.create({path: path, mode: mode},
+            function (err, response) {
+                if (err) console.log(err);
+                console.log('Response from create');
+                console.log('create', path, mode);
+                cb(0);
+            });
+
+
     },
     write: function (path, fd, buffer, length, position, cb) {
-        try {
-            console.log('write11', path, fd, buffer, length, position, cb);
-            // TODO: Unable to write. File is read only.
-            console.log('Write was called');
-            fs.write(fd, buffer, 0, length, position, function (e) {
-                console.log(e);
-                console.log('hello123123')
+        console.log('write');
+        client.write({path: path, fd: fd, buffer: buffer, length: length, position: position},
+            function (err, response) {
+                if (err) console.log(err);
+                console.log('Response from write');
                 cb(length);
             });
-        } catch (e) {
-            console.log(e);
-        }
-
-        return cb(length);
     },
     unlink: function (path, cb) {
+        console.log('unlink');
         client.unlink({path: path},
             function (err, response) {
                 if (err) console.log(err);
-                console.log('Response from unlink');
+                // console.log('Response from unlink');
                 cb(0);
             });
     },
     mkdir: function (path, mode, cb) {
+        console.log('mkdir');
         client.mkdir({path: path, mode: mode},
             function (err, response) {
                 if (err) console.log(err);
-                console.log('Response from mkdir');
+                // console.log('Response from unlink');
                 cb(0);
             });
     },
     rmdir: function (path, cb) {
+        console.log('rmdir');
         client.rmdir({path: path},
             function (err, response) {
                 if (err) console.log(err);
-                console.log('Response from unlink');
+                // console.log('Response from unlink');
+                console.log('rmdir');
                 cb(0);
             });
     },
     chmod: function (path, mode, cb) {
+        console.log('chmod');
         client.chmod({path: path, mode: mode},
             function (err, response) {
                 if (err) console.log(err);
