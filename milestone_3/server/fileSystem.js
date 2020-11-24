@@ -5,13 +5,11 @@ const root_file_path = '/Users/main/Coding/school/COMP_4000/milestone_2/client/r
 
 const ops = {
     readdir: function (call, callback) {
-        console.log('readdir');
-        console.log('path', call.request.path);
-        const filenames = fs.readdirSync(root_file_path + call.request.path);
-        console.log(root_file_path + call.request.path);
-        console.log('filenames', filenames);
-        callback(null, {filenames: filenames});
+        callback(null, {filenames: null});
     },
+    // WORKING ON THE ABOVE FUNCTION
+
+
     access: function (call, callback) {
         console.log('access');
         console.log('access', call.request.path, call.request.mode);
@@ -33,7 +31,7 @@ const ops = {
     open: function (call, callback) {
         console.log('open');
         console.log('open', root_file_path + call.request.path, 'flags', call.request.flags);
-        const fd = fs.openSync(root_file_path + call.request.path , call.request.flags);
+        const fd = fs.openSync(root_file_path + call.request.path, call.request.flags);
         callback(null, {fd: fd});
     },
     read: function (call, callback) {
