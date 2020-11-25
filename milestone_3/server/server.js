@@ -58,19 +58,7 @@ function startServer(DOMAIN, PORT, hello_proto) {
         isAuthenticated: user.isAuthenticated,
         updatePassword: user.updatePassword,
         deleteAccount: user.deleteAccount,
-        readdir: fileSystem.readdir,
-        access: fileSystem.access,
-        getattr: fileSystem.getattr,
-        open: fileSystem.open,
-        read: fileSystem.read,
-        opendir: fileSystem.opendir,
-        statfs: fileSystem.statfs,
-        create: fileSystem.create,
-        write: fileSystem.write,
-        unlink: fileSystem.unlink,
-        mkdir: fileSystem.mkdir,
-        rmdir: fileSystem.rmdir,
-        chmod: fileSystem.chmod,
+        readdir: fileSystem.readdir
     };
 
     server.addService(hello_proto.Greeter.service, rpcMessages);
