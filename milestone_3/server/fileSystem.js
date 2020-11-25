@@ -39,6 +39,17 @@ const ops = {
         console.log('buf: ', buf, ', size: ', size);
         if (!size) callback(null, 0);
         callback(null, {size: size, buf: buf});
+    },
+
+    opendir: function (call, callback) {
+        const dir = fs.opendirSync(root_file_path + call.request.path);
+        console.log('dir is: ', dir);
+        callback(null, {});
+    },
+
+    statfs: function (call, callback) {
+        const statfs = fs.statSync(root_file_path + call.request.path);
+        callback(null, {stat: statfs});
     }
 }
 
@@ -47,5 +58,7 @@ module.exports = {
     access: ops.access,
     getattr: ops.getattr,
     open: ops.open,
-    read: ops.read
+    read: ops.read,
+    opendir: ops.opendir,
+    statfs: ops.statfs
 };

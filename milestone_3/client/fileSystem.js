@@ -10,61 +10,84 @@ const ops = {
 
     // Called when a directory is being listed.
     readdir: function (path, cb) {
-        console.log('ReadDIR123');
-        console.log('./real' + path);
-
-        const filenames = fs.readdirSync('./real' + path);
-        if (filenames) return process.nextTick(cb, 0, filenames);
-        return process.nextTick(cb, 0);
+        client.readdir({path: path},
+            function (err, response) {
+                console.log('here', response);
+                if (err) console.log(err);
+                if (response) return process.nextTick(cb, 0, response.filenames);
+                return process.nextTick(cb, 0);
+            });
     },
 
     // Called before the filesystem accessed a file.
     access: function (path, mode, cb) {
-        fs.accessSync('./real' + path, mode);
-        return process.nextTick(cb, 0);
+        client.access({path: path, mode: mode},
+            function (err, response) {
+                console.log('here', response);
+                if (err) console.log(err);
+                return process.nextTick(cb, 0);
+            });
     },
 
 
     // Called when a path is being stat'ed.
     getattr: function (path, cb) {
-        console.log('getattr(%s)', path);
-        try {
-            const stats = fs.statSync('./real' + path);
-            return process.nextTick(cb, 0, stats);
-        } catch (e) {
-            console.log('error', e);
-            return process.nextTick(cb, Fuse.ENOENT);
-        }
+        client.getattr({path: path},
+            function (err, response) {
+                console.log('here11', response);
+                if (err) console.log(err);
+
+                if (response.tempStat) {
+                    console.log('111');
+                    response.tempStat.atime = new Date(response.tempStat.atime);
+                    response.tempStat.mtime = new Date(response.tempStat.mtime);
+                    response.tempStat.ctime = new Date(response.tempStat.ctime);
+                    response.tempStat.birthtime = new Date(response.tempStat.birthtime);
+
+                    process.nextTick(cb, 0, response.tempStat);
+                } else {
+                    process.nextTick(cb, Fuse.ENOENT);
+                }
+            });
     },
 
     // Called when a path is being opened.
-    open: function (path, flags, cb) {
-        console.log('open(%s, %d)', path, flags)
-        const fd = fs.openSync('./real' + path, flags);
-        console.log('file descriptor: ', fd);
-        process.nextTick(cb, 0, fd);
+    open: async function (path, flags, cb) {
+        const tempPromise = new Promise( (resolve, reject) => {
+            client.open({path: path, flags: flags}, function (err, response) {
+                if (err) console.log(err);
+                console.log('open fd is: ', response.fd);
+                console.log('response is: ', response);
+                resolve(response.fd);
+            })
+        });
+
+        await tempPromise.then(function (fd) {
+            process.nextTick(cb, 0, fd);
+        });
     },
 
     // Called when contents of a file is being read.
     read: function (path, fd, buf, len, pos, cb) {
-        console.log('read(%s, %d, %d, %d)', path, fd, len, pos);
-        const size = fs.readSync(fd, buf, 0, len, pos);
-        console.log('buf: ', buf, ', size: ', size);
-        if (!size) return process.nextTick(cb, 0);
-        return process.nextTick(cb, size);
+        client.read({ path, fd, buf, len, pos}, function (err, response) {
+            if (err) console.log(err);
+            buf.set(response.buf)
+            process.nextTick(cb, buf.length);
+        });
     },
 
     // Called when a directory is being opened.
     opendir: function (path, flags, cb) {
-        const dir = fs.opendirSync('./real' + path);
-        console.log('dir is: ', dir);
-        return process.nextTick(cb, 0);
+        client.opendir({path: path, flags: flags}, function (err, response) {
+            process.nextTick(cb, 0);
+        });
     },
 
     // Called when the filesystem is being stat'ed.
     statfs: function (path, cb) {
-        const statfs = fs.statSync('./real' + path);
-        return process.nextTick(cb, 0, statfs);
+        client.statfs({path: path}, function (err, response) {
+            process.nextTick(cb, 0, response.statfs);
+        });
     },
 
     // Called when a new file is being opened.

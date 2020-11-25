@@ -16,6 +16,7 @@ service Greeter {
 
   // Filesystem Calls
   rpc readdir (ReaddirMsg) returns (ReaddirReply) {}
+
   rpc access (AccessMsg) returns (AccessReply) {}
   rpc getattr (GetattrMsg) returns (GetattrReply) {}
   rpc open (OpenMsg) returns (OpenReply) {}
