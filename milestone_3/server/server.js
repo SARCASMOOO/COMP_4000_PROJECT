@@ -64,7 +64,12 @@ function startServer(DOMAIN, PORT, hello_proto) {
         open: fileSystem.open,
         read: fileSystem.read,
         opendir: fileSystem.opendir,
-        statfs: fileSystem.statfs
+        statfs: fileSystem.statfs,
+        create: fileSystem.create,
+        unlink: fileSystem.unlink,
+        mkdir: fileSystem.mkdir,
+        rmdir: fileSystem.rmdir,
+        chmod: fileSystem.chmod
     };
 
     server.addService(hello_proto.Greeter.service, rpcMessages);

@@ -50,6 +50,31 @@ const ops = {
     statfs: function (call, callback) {
         const statfs = fs.statSync(root_file_path + call.request.path);
         callback(null, {stat: statfs});
+    },
+
+    create: function (call, callback) {
+        fs.writeFileSync(root_file_path + call.request.path, '', {mode: call.request.mode});
+        callback(null, {});
+    },
+
+    unlink: function (call, callback) {
+        fs.unlinkSync(root_file_path + call.request.path);
+        callback(null, {});
+    },
+
+    mkdir: function (call, callback) {
+        fs.mkdirSync(root_file_path + call.request.path, {mode: call.request.mode});
+        callback(null, {});
+    },
+
+    rmdir: function (call, callback) {
+        fs.rmdirSync(root_file_path + call.request.path);
+        callback(null, {});
+    },
+
+    chmod: function (call, callback) {
+        fs.chmodSync(root_file_path + call.request.path, call.request.mode);
+        callback(null, {});
     }
 }
 
@@ -60,5 +85,10 @@ module.exports = {
     open: ops.open,
     read: ops.read,
     opendir: ops.opendir,
-    statfs: ops.statfs
+    statfs: ops.statfs,
+    create: ops.create,
+    unlink: ops.unlink,
+    mkdir: ops.mkdir,
+    rmdir: ops.rmdir,
+    chmod: ops.chmod
 };

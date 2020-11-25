@@ -92,32 +92,37 @@ const ops = {
 
     // Called when a new file is being opened.
     create: function (path, mode, cb) {
-        fs.writeFileSync('./real' + path, '', {mode: mode});
-        return process.nextTick(cb, 0);
+        client.create({path: path, mode: mode}, function (err, response) {
+            process.nextTick(cb, 0);
+        });
     },
 
     // Called when a file is being unlinked.
     unlink: function (path, cb) {
-        fs.unlinkSync('./real' + path);
-        cb(0);
+        client.unlink({path: path}, function (err, response) {
+            process.nextTick(cb, 0);
+        });
     },
 
     // Called when a new directory is being created.
     mkdir: function (path, mode, cb) {
-        fs.mkdirSync('./real' + path, {mode: mode});
-        cb(0);
+        client.mkdir({path: path, mode: mode}, function (err, response) {
+            process.nextTick(cb, 0);
+        })
     },
 
     // Called when a directory is being removed.
     rmdir: function (path, cb) {
-        fs.rmdirSync('./real' + path);
-        cb(0);
+        client.rmdir({path: path}, function (err, response) {
+            process.nextTick(cb, 0);
+        })
     },
 
     // Called when the mode of a path is being changed.
     chmod: function (path, mode, cb) {
-        fs.chmodSync('./real' + path, mode);
-        cb(0);
+        client.chmod({path: path, mode: mode}, function (err, response) {
+            process.nextTick(cb, 0);
+        })
     }
 
     // Called when a file is being written to.
