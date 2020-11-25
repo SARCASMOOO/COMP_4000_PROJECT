@@ -175,7 +175,15 @@ function main() {
     const DOMAIN = 'localhost'
     const ADDRESS = DOMAIN + PORT;
 
-    const client = new hello_proto.Greeter(ADDRESS, grpc.credentials.createInsecure());
+    // The credentials part I borrowed from the following repository
+    // https://github.com/gbahamondezc/node-grpc-ssl/blob/master/
+    const credentials = grpc.credentials.createSsl(
+        fs.readFileSync('../certs/ca.crt'),
+        fs.readFileSync('../certs/client.key'),
+        fs.readFileSync('../certs/client.crt')
+    );
+
+    const client = new hello_proto.Greeter(ADDRESS, credentials);
     globalClient = client;
 
     start(client);
