@@ -72,10 +72,17 @@ function startServer(DOMAIN, PORT, hello_proto) {
         chmod: fileSystem.chmod
     };
 
-    server.addService(hello_proto.Greeter.service, rpcMessages);
-    server.bind(ADDRESS, grpc.ServerCredentials.createInsecure());
-    server.start();
+    // The credentials part I borrowed from the following repository
+    // https://github.com/gbahamondezc/node-grpc-ssl/blob/master/
+    const credentials = grpc.ServerCredentials.createSsl(
+        fs.readFileSync('../certs/ca.crt'), [{
+            cert_chain: fs.readFileSync('../certs/server.crt'),
+            private_key: fs.readFileSync('../certs/server.key')
+        }], true);
 
+    server.addService(hello_proto.Greeter.service, rpcMessages);
+    server.bind(ADDRESS, credentials);
+    server.start();
     return server;
 }
 
