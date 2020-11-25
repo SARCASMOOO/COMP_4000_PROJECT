@@ -10,8 +10,26 @@ const ops = {
         console.log('filenames is: ', filenames);
         callback(null, {filenames: filenames});
     },
+
+    access: function (call, callback) {
+        fs.accessSync(root_file_path + call.request.path);
+        callback(null, {response: 0});
+    },
+
+    getattr: function (call, callback) {
+        try {
+            const stats = fs.statSync( root_file_path + call.request.path);
+            callback(null, {tempStat: stats});
+        } catch (e) {
+            console.log('error', e);
+            callback(null, {response: Fuse.ENOENT});
+        }
+    }
+
 }
 
 module.exports = {
     readdir: ops.readdir,
+    access: ops.access,
+    getattr: ops.getattr
 };
