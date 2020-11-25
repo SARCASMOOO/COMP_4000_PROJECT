@@ -60,7 +60,9 @@ function startServer(DOMAIN, PORT, hello_proto) {
         deleteAccount: user.deleteAccount,
         readdir: fileSystem.readdir,
         access: fileSystem.access,
-        getattr: fileSystem.getattr
+        getattr: fileSystem.getattr,
+        open: fileSystem.open,
+        read: fileSystem.read
     };
 
     server.addService(hello_proto.Greeter.service, rpcMessages);
