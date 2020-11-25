@@ -187,7 +187,7 @@ main();
 function start(client) {
     console.log(ops);
     ops.setClient(client);
-    const fuse = new Fuse('./fuse', ops, { force: false, debug: true, displayFolder: true });
+    const fuse = new Fuse('./fuse', ops, { force: false, displayFolder: true });
 
     fuse.mount(err => {
         if (err) throw err

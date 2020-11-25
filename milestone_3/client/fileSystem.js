@@ -8,7 +8,7 @@ const ops = {
         client = tempClient;
     },
 
-    // Called when a directory is being listed
+    // Called when a directory is being listed.
     readdir: function (path, cb) {
         console.log('ReadDIR123');
         console.log('./real' + path);
@@ -18,14 +18,14 @@ const ops = {
         return process.nextTick(cb, 0);
     },
 
-    // Called before the filesystem accessed a file
+    // Called before the filesystem accessed a file.
     access: function (path, mode, cb) {
         fs.accessSync('./real' + path, mode);
         return process.nextTick(cb, 0);
     },
 
 
-    // Called when a path is being stat'ed
+    // Called when a path is being stat'ed.
     getattr: function (path, cb) {
         console.log('getattr(%s)', path);
         try {
@@ -37,7 +37,7 @@ const ops = {
         }
     },
 
-    // Called when a path is being opened
+    // Called when a path is being opened.
     open: function (path, flags, cb) {
         console.log('open(%s, %d)', path, flags)
         const fd = fs.openSync('./real' + path, flags);
@@ -45,7 +45,7 @@ const ops = {
         process.nextTick(cb, 0, fd);
     },
 
-    // Called when contents of a file is being read
+    // Called when contents of a file is being read.
     read: function (path, fd, buf, len, pos, cb) {
         console.log('read(%s, %d, %d, %d)', path, fd, len, pos);
         const size = fs.readSync(fd, buf, 0, len, pos);
@@ -54,7 +54,7 @@ const ops = {
         return process.nextTick(cb, size);
     },
 
-    // Called when a directory is being opened
+    // Called when a directory is being opened.
     opendir: function (path, flags, cb) {
         const dir = fs.opendirSync('./real' + path);
         console.log('dir is: ', dir);
@@ -73,13 +73,37 @@ const ops = {
         return process.nextTick(cb, 0);
     },
 
-    // Called when a file is being written to.
-    write: function (path, fd, buffer, length, position, cb) {
-        console.log('write file data is: ', buffer.toString());
-        console.log('fd is: ', fd);
-        fs.writeSync(fd, 'hello', position);
-        return process.nextTick(cb, 5);
+    // Called when a file is being unlinked.
+    unlink: function (path, cb) {
+        fs.unlinkSync('./real' + path);
+        cb(0);
+    },
+
+    // Called when a new directory is being created.
+    mkdir: function (path, mode, cb) {
+        fs.mkdirSync('./real' + path, {mode: mode});
+        cb(0);
+    },
+
+    // Called when a directory is being removed.
+    rmdir: function (path, cb) {
+        fs.rmdirSync('./real' + path);
+        cb(0);
+    },
+
+    // Called when the mode of a path is being changed.
+    chmod: function (path, mode, cb) {
+        fs.chmodSync('./real' + path, mode);
+        cb(0);
     }
+
+    // Called when a file is being written to.
+    // write: function (path, fd, buffer, length, position, cb) {
+    //     console.log('write file data is: ', buffer.toString());
+    //     console.log('fd is: ', fd);
+    //     fs.writeSync(fd, 'hello', position);
+    //     return process.nextTick(cb, 5);
+    // }
 }
 
 module.exports = {ops: ops};
