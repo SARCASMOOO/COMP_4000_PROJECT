@@ -186,8 +186,8 @@ function main() {
     const client = new hello_proto.Greeter(ADDRESS, credentials);
     globalClient = client;
 
-    start(client);
-    // update(client);
+    // start(client);
+    update(client);
 }
 
 main();
