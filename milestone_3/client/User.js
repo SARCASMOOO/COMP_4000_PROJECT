@@ -6,9 +6,9 @@ let curentUser;
 
 const readInput = msg => readlineSync.question(msg);
 
-function signUp(client) {
+function signUp(stub) {
     const user = UI.getUserCredentialsSignUp();
-    client.SignUp({username: user.userName, password: user.password},
+    stub.SignUp({username: user.userName, password: user.password},
         function (err, response) {
             if (response.status === 0) {
                 console.log('Message: ', response.message);
@@ -17,13 +17,13 @@ function signUp(client) {
                 console.log('Message: :', response.message);
                 curentUser = user;
             }
-            update(client);
+            update(stub);
         });
 }
 
-function login(client) {
+function login(stub) {
     const user = UI.getUserCredentialsLogin();
-    client.LogIn({username: user.userName, password: user.password},
+    stub.LogIn({username: user.userName, password: user.password},
         function (e, response) {
             if (response.status === 0) {
                 console.log('Failed to login. Message: ', response.message);
@@ -36,19 +36,19 @@ function login(client) {
                 curentUser = user;
                 console.log(curentUser);
             }
-            update(client);
+            update(stub);
         });
 }
 
-function updatePassword(client, user) {
+function updatePassword(stub, user) {
     const newPassword = UI.getUserPasswordSignUp();
 
     if (!curentUser) {
         console.log('Please login before trying to update your password.');
         console.log(curentUser);
-        update(client);
+        update(stub);
     } else {
-        client.updatePassword({username: curentUser.userName, token: curentUser.token, newPassword: newPassword},
+        stub.updatePassword({username: curentUser.userName, token: curentUser.token, newPassword: newPassword},
             function (err, response) {
                 if (response.status === 0) {
                     console.log('Failed to update password. Message: ', response.message);
@@ -56,24 +56,24 @@ function updatePassword(client, user) {
                     console.log('Response: :', response.message);
                     curentUser.token = null;
                 }
-                update(client);
+                update(stub);
             });
     }
 }
 
-function deleteAccount(client) {
+function deleteAccount(stub) {
     if (!curentUser) {
         console.log('Please login before trying to delete your account.');
-        update(client);
+        update(stub);
     } else {
-        client.deleteAccount({username: curentUser.userName, token: curentUser.token},
+        stub.deleteAccount({username: curentUser.userName, token: curentUser.token},
             function (err, response) {
                 if (response.status === 1) {
                     console.log(curentUser.userName, ' was removed.')
                 } else {
                     console.log('Failed to remove account: ', response.message)
                 }
-                update(client);
+                update(stub);
             });
     }
 }
