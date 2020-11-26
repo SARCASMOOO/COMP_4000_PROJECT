@@ -9,7 +9,7 @@ option objc_class_prefix = "HLW";
 package helloworld;
 
 service Greeter {
-  rpc SignUp (UserInfoRequest) returns (UserInfoReply) {}
+  rpc SignUp (SignUpRequest) returns (UserInfoReply) {}
   rpc LogIn (UserInfoRequest) returns (UserInfoReply) {}
   rpc updatePassword (PasswordReset) returns (UserInfoReply) {}
   rpc deleteAccount (AccountRequest) returns (UserInfoReply) {}
@@ -179,6 +179,12 @@ message PasswordReset {
 message AccountRequest {
   string token = 1;
   string username = 2;
+}
+
+message SignUpRequest {
+  string username = 1;
+  string password = 2;
+  bool isAdmin = 3;
 }
 
 message UserInfoRequest {

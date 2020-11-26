@@ -8,7 +8,7 @@ const readInput = msg => readlineSync.question(msg);
 
 function signUp(stub) {
     const user = UI.getUserCredentialsSignUp();
-    stub.SignUp({username: user.userName, password: user.password},
+    stub.SignUp({username: user.userName, password: user.password, isAdmin: user.isAdmin},
         function (err, response) {
             if (response.status === 0) {
                 console.log('Message: ', response.message);

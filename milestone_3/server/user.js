@@ -18,8 +18,7 @@ function saveDB(clientsColl) {
 
 // Sign Up User
 function signUp(call, callback) {
-    const user = {username: call.request.username, password: call.request.password};
-
+    const user = {username: call.request.username, password: call.request.password, isAdmin: call.request.isAdmin};
     const saveUser = () => {
         const BCRYPT_SALT_ROUNDS = 12;
         bcrypt.hash(user.password, BCRYPT_SALT_ROUNDS).then(hashedPwd => {
