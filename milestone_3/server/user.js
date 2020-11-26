@@ -32,15 +32,41 @@ function signUp(call, callback) {
         callback(null, signUpReply);
     }
 
-    clientsCollection.find({username: call.request.username}).limit(1).count().then(count => {
-        if (count < 1) {
-            console.log('Save user');
-            saveUser();
-        } else {
-            console.log('Reject user');
-            rejectSaveUser();
-        }
-    });
+    if(call.request.adminName && call.request.adminToken) {
+        // Confirm this admin account is correct then move on if not responde with fail.
+        const BCRYPT_SALT_ROUNDS = 12;
+        clientsCollection.findOne({username: call.request.adminName}).then(user => {
+            let signUpReply;
+
+            if (user && user.token === call.request.adminToken) {
+                // If this is true we can sign up user.
+                console.log('Admin is authenticated');
+                clientsCollection.find({username: call.request.username}).limit(1).count().then(count => {
+                    if (count < 1) {
+                        console.log('Save user');
+                        saveUser();
+                    } else {
+                        console.log('Reject user');
+                        rejectSaveUser();
+                    }
+                });
+            } else {
+                signUpReply = {status: 0, message: 'Tokens don\'t match.'};
+                callback(null, signUpReply);
+            }
+        });
+    } else {
+        // Non admin path
+        clientsCollection.find({username: call.request.username}).limit(1).count().then(count => {
+            if (count < 1) {
+                console.log('Save user');
+                saveUser();
+            } else {
+                console.log('Reject user');
+                rejectSaveUser();
+            }
+        });
+    }
 }
 
 // Login User
@@ -58,7 +84,7 @@ function logIn(call, callback) {
                 {username: user.username}, {$set: {token: token, expirationDate: expirationDate}}
             );
 
-            logInReply = {status: 1, message: token};
+            logInReply = {status: 1, message: token, isAdmin: user.isAdmin};
             callback(null, logInReply);
         }
 

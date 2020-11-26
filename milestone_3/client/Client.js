@@ -6,11 +6,11 @@ const grpc = require('grpc');
 const protoLoader = require('@grpc/proto-loader');
 const fs = require('fs');
 const Fuse = require('fuse-native');
-
 const User = require('./User');
 
 // Helper functions
 const ops = require("./FileSystem").ops;
+
 
 // Config
 const packageDefinition = protoLoader.loadSync(
@@ -28,8 +28,6 @@ let curentUser;
 
 const hello_proto = grpc.loadPackageDefinition(packageDefinition).helloworld;
 
-let globalClient;
-
 function main() {
     const PORT = ':10001';
     const DOMAIN = 'localhost'
@@ -43,12 +41,13 @@ function main() {
         fs.readFileSync('../certs/client.crt')
     );
 
-    const client = new hello_proto.Greeter(ADDRESS, credentials);
-    globalClient = client;
+    const stub = new hello_proto.Greeter(ADDRESS, credentials);
 
     // start(client);
-    User.update(client);
+    User.update(stub);
 }
+
+
 
 main();
 
