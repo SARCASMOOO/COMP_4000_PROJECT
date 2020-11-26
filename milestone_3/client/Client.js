@@ -11,7 +11,7 @@ const Fuse = require('fuse-native');
 const UI = require('./UI');
 
 // Helper functions
-const ops = require("./fileSystem").ops;
+const ops = require("./FileSystem").ops;
 
 // Config
 const packageDefinition = protoLoader.loadSync(
