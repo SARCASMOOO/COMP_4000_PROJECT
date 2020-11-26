@@ -81,7 +81,7 @@ function deleteAccount(stub) {
 function update(stub) {
     let command;
     let counter = 0;
-    const msg = 'Please type one of the following commands: 0 to exit, 1 for login, 2 for signup, 3 to update password, 4 to remove account.';
+    const msg = 'Please type one of the following commands: 0 to exit, 1 for sign up, 2 for login, 3 to update password, 4 to remove account.';
 
     command = readInput(msg);
     switch (command) {
@@ -89,10 +89,10 @@ function update(stub) {
             process.exit(1);
             break;
         case "1":
-            login(stub);
+            signUp(stub);
             break;
         case "2":
-            signUp(stub);
+            login(stub);
             break;
         case "3":
             updatePassword(stub);
