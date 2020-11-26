@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const util = require('../common/util');
+const util = require('../common/Util');
 
 module.exports = {
     saveDB: saveDB,
@@ -18,6 +18,7 @@ function saveDB(clientsColl) {
 
 // Sign Up User
 function signUp(call, callback) {
+    console.log('Sign up called');
     const user = {username: call.request.username, password: call.request.password};
 
     const saveUser = () => {

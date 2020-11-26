@@ -12,9 +12,11 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, loadProtoOptions);
 const hello_proto = grpc.loadPackageDefinition(packageDefinition).helloworld;
 
 // Variables
-const PORT = ':10001';
+const PORT = ':10002';
 const DOMAIN = 'localhost'
 const ADDRESS = DOMAIN + PORT;
+
+let client;
 
 function getGRPCcredentials() {
     return (
@@ -28,6 +30,7 @@ function getGRPCcredentials() {
 function saveClientStubInFileSystem() {
     // The credentials part I borrowed from the following repository
     // https://github.com/gbahamondezc/node-grpc-ssl/blob/master/
-    const client = new hello_proto.Greeter(ADDRESS, getGRPCcredentials());
-    ops.setClient(client);
+    client = new hello_proto.Greeter(ADDRESS, getGRPCcredentials());
+    return client;
 }
+

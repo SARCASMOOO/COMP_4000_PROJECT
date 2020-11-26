@@ -26,7 +26,7 @@ service Greeter {
   rpc statfs (StatfsMsg) returns (StatfsReply) {}
   rpc create (CreateMsg) returns (CreateReply) {}
 
-  rpc write (WriteMsg) returns (WriteReply) {}
+//  rpc write (WriteMsg) returns (WriteReply) {}
   rpc unlink (UnlinkMsg) returns (UnlinkReply) {}
   rpc mkdir (MkdirMsg) returns (MkdirReply) {}
   rpc rmdir (RmdirMsg) returns (RmdirReply) {}

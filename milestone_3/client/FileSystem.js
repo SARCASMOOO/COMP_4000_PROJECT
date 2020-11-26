@@ -4,6 +4,7 @@ const Fuse = require('fuse-native');
 let client;
 
 const ops = {
+    // Ran when client is started. Saves a stub for GRPC calls.
     setClient: function (tempClient) {
         client = tempClient;
     },
