@@ -1,7 +1,7 @@
 const fs = require('fs');
 const Fuse = require('fuse-native');
 
-const root_file_path = '/Users/main/Coding/school/COMP_4000/milestone_3/client/real';
+const root_file_path = '/Users/main/Coding/school/COMP_4000/milestone_3/server/real';
 
 const ops = {
     readdir: function (call, callback) {
