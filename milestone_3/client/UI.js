@@ -70,3 +70,4 @@ module.exports = {
     getUserCredentialsLogin: getUserCredentialsLogin,
     getUserCredentialsSignUp: getUserCredentialsSignUp,
 };
+

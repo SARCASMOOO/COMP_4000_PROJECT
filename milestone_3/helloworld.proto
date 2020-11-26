@@ -12,7 +12,7 @@ service Greeter {
   rpc SignUp (SignUpRequest) returns (UserInfoReply) {}
   rpc LogIn (UserInfoRequest) returns (LoginReply) {}
   rpc updatePassword (PasswordReset) returns (UserInfoReply) {}
-  rpc deleteAccount (AccountRequest) returns (UserInfoReply) {}
+  rpc deleteAccount (DeleteAccountRequest) returns (UserInfoReply) {}
 
   // Filesystem Calls
   rpc readdir (ReaddirMsg) returns (ReaddirReply) {}
@@ -179,6 +179,14 @@ message PasswordReset {
 message AccountRequest {
   string token = 1;
   string username = 2;
+}
+
+message DeleteAccountRequest {
+  string token = 1;
+  string username = 2;
+  bool isAdmin = 3;
+  string adminName = 4;
+  string adminToken = 5;
 }
 
 message SignUpRequest {

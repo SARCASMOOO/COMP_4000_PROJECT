@@ -40,7 +40,7 @@ function login(stub) {
 
                 const token = response.message;
                 user.token = token;
-                if(!response.isAdmin) {
+                if (!response.isAdmin) {
                     user.isAdmin = false;
                 } else {
                     user.isAdmin = response.isAdmin;
@@ -96,7 +96,7 @@ const isUserLogedIn = (user) => (user && user.token && user.token.length > 0);
 // ADMIN FUNCTIONS
 function adminCreateUser(stub, currentUser) {
     console.log('currentUser is: ', currentUser);
-    if(currentUser && currentUser.isAdmin && currentUser.isAdmin === true && currentUser.token) {
+    if (currentUser && currentUser.isAdmin && currentUser.isAdmin === true && currentUser.token) {
         // If an admin is making this call we want to send the admins credentials as well.
         // If the admin credentials are correct we allow the call to make a new user.
         console.log('Please enter the details for the account you want to create.');
@@ -121,15 +121,39 @@ function adminCreateUser(stub, currentUser) {
     }
 }
 
+function adminDeleteAccount(stub, currentUser) {
+    console.log('currentUser is: ', currentUser);
+    if (currentUser && currentUser.isAdmin && currentUser.isAdmin === true && currentUser.token) {
+        // If an admin is making this call we want to send the admins credentials as well.
+        // If the admin credentials are correct we allow the call to make a new user.
+        console.log('Please enter the details for the account you want to delete.');
+        const username = UI.getUserName();
+
+        stub.deleteAccount({username: username,
+                isAdmin: currentUser.isAdmin, adminName: currentUser.userName, adminToken: currentUser.token
+            },
+            function (err, response) {
+                if (response.status === 1) {
+                    console.log(username, ' was removed.')
+                } else {
+                    console.log('Failed to remove account: ', response.message)
+                }
+                update(stub);
+            });
+    } else {
+        console.log('You can not run this function. You must be an Admin.');
+        update(stub);
+    }
+}
 
 // TODO: Update credentials for a specific user
 // Loop
 function update(stub) {
     let command;
     const msg = ` Please type one of the following commands: 0 to exit, 1 for sign up, 2 for login, 3 to update password, 4 to remove account.
-    If you are an admin type 5 to create a new user, 6 to update a password for a specific user, and 7 to delete a specific user.`;
+    If you are an admin type 5 to create a new user, 6 to delete a specific user, and 7 to update a password for a specific user.`;
 
-    if(isUserLogedIn(curentUser)) {
+    if (isUserLogedIn(curentUser)) {
         console.log('Logged in as: ', curentUser);
     } else {
         console.log('Not logged in.');
@@ -154,6 +178,9 @@ function update(stub) {
             break;
         case "5":
             adminCreateUser(stub, curentUser);
+            break;
+        case "6":
+            adminDeleteAccount(stub, curentUser);
             break;
         default:
             console.log('Invalid option. Please select one of the options provided.');

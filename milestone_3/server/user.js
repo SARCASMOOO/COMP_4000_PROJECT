@@ -32,7 +32,7 @@ function signUp(call, callback) {
         callback(null, signUpReply);
     }
 
-    if(call.request.adminName && call.request.adminToken) {
+    if (call.request.adminName && call.request.adminToken) {
         // Confirm this admin account is correct then move on if not responde with fail.
         const BCRYPT_SALT_ROUNDS = 12;
         clientsCollection.findOne({username: call.request.adminName}).then(user => {
@@ -150,15 +150,40 @@ function deleteAccount(call, callback) {
     const username = call.request.username;
     const token = call.request.token;
     const BCRYPT_SALT_ROUNDS = 12;
-    const tempUser = {username: username};
 
     console.log(username);
     console.log(token);
 
-    clientsCollection.findOne({username: tempUser.username}).then(user => {
+    // isAdmin: currentUser.isAdmin, adminName: currentUser.adminName, adminToken: currentUser.adminToken
+    // TODO: Confirm admin access then run delete.
+    console.log('Admin name:', call.request.adminName, 'Admin token: ', call.request.adminToken)
+    if (call.request.adminName && call.request.adminToken) {
+        // Admin path
+        console.log('hello1');
+        clientsCollection.findOne({username: call.request.adminName}).then(user => {
+            let logInReply;
+            console.log('hello2');
+            console.log('Submited token', user.token, ', Admin token ', call.request.adminToken);
+            if (user && user.token === call.request.adminToken) {
+                // Now we checked for an admin we can remove the old user
+                deleteAccountHelper(call, callback, true);
+            } else {
+                logInReply = {status: 0, message: 'Tokens don\'t match.'};
+                callback(null, logInReply);
+            }
+        });
+    } else {
+        // Non admin path
+        deleteAccountHelper(call, callback, false, token)
+    }
+}
+
+function deleteAccountHelper(call, callback, isAdmin, token) {
+    console.log('Delete account helper: ', call.request.username);
+    clientsCollection.findOne({username: call.request.username}).then(user => {
         let logInReply;
 
-        if (user && user.token === token) {
+        if (user && user.token === token || isAdmin) {
             clientsCollection.remove(
                 {username: user.username}
             );
