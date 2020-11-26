@@ -1,5 +1,5 @@
 const User = require('./User');
-const UI = require('./UI');
+// const UI = require('./UI');
 const Util = require('../common/Util');
 // const Setup = require('./Setup');
 
@@ -45,7 +45,6 @@ function update() {
 
     while (true) {
         command = Util.readInput(msg);
-
         switch (command) {
             case "0":
                 process.exit(1);
@@ -71,7 +70,7 @@ function update() {
 function main() {
     stub = saveClientStubInFileSystem();
     // mountFuse();
-    UI.welcome();
+    // UI.welcome();
     update();
 }
 
