@@ -147,6 +147,35 @@ function adminDeleteAccount(stub, currentUser) {
 }
 
 // TODO: Admin function to Update credentials for a specific user
+// TODO: Need to finsish update function.
+function adminUpdatePassword(stub, currentUser) {
+    const msg = 'Please enter the user name of the user you would like to update.';
+    const tempUser = UI.getUserCredentialsLogin(msg);
+    const userName = tempUser.userName;
+    const newPassword = tempUser.password;
+
+    if (!curentUser) {
+        console.log('Please login before trying to update your password.');
+        console.log(curentUser);
+        update(stub);
+    } else {
+        if(!currentUser.isAdmin) {
+            console.log('You must be an admin to run this function.');
+        } else {
+            // TODO: Need to check if user is an admin.
+            stub.updatePassword({username: userName, newPassword: newPassword, isAdmin: true},
+                function (err, response) {
+                    if (response.status === 0) {
+                        console.log('Failed to update password. Message: ', response.message);
+                    } else {
+                        console.log('Response: :', response.message);
+                        curentUser.token = null;
+                    }
+                    update(stub);
+                });
+        }
+    }
+}
 
 // Loop
 function update(stub) {
@@ -182,6 +211,9 @@ function update(stub) {
             break;
         case "6":
             adminDeleteAccount(stub, curentUser);
+            break;
+        case "7":
+            adminUpdatePassword(stub, curentUser);
             break;
         default:
             console.log('Invalid option. Please select one of the options provided.');

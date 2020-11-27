@@ -174,6 +174,7 @@ message PasswordReset {
   string username = 1;
   string token = 2;
   string newPassword = 3;
+  bool isAdmin = 4;
 }
 
 message AccountRequest {

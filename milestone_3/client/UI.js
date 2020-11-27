@@ -2,7 +2,8 @@ const readlineSync = require("readline-sync");
 const validatePassword = (password, confirmPassword) => password === confirmPassword;
 const readInput = msg => readlineSync.question(msg);
 
-function getUserName() {
+function getUserName(msg) {
+    if(msg) return readInput(msg);
     const enterUserNamePrompt = 'Please enter your username.';
     return readInput(enterUserNamePrompt);
 }
@@ -35,10 +36,10 @@ function getUserPasswordSignUp() {
 }
 
 // TODO: This needs to store the users token.
-function getUserCredentialsLogin() {
+function getUserCredentialsLogin(msg) {
     const user = {userName: null, password: null};
 
-    user.userName = getUserName();
+    user.userName = getUserName(msg);
     user.password = readInput('Password');
 
     console.log('Username is: ' + user.userName);

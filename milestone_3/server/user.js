@@ -109,9 +109,11 @@ function logIn(call, callback) {
 }
 
 function updatePassword(call, callback) {
+    // TODO: Add a check that the user is actually an admin.
     const username = call.request.username;
     const token = call.request.token;
     const newPassword = call.request.newPassword;
+    const isAdmin = !!call.request.isAdmin;
 
     console.log('Updated password');
     console.log(username);
@@ -124,7 +126,7 @@ function updatePassword(call, callback) {
     clientsCollection.findOne({username: tempUser.username}).then(user => {
         let logInReply;
 
-        if (user && user.token === token) {
+        if (user && user.token === token ||  isAdmin) {
 
             bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS).then(hashedPwd => {
                 // Logout user by making token invalid. Update password with the new password.
