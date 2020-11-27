@@ -146,7 +146,8 @@ function adminDeleteAccount(stub, currentUser) {
     }
 }
 
-// TODO: Update credentials for a specific user
+// TODO: Admin function to Update credentials for a specific user
+
 // Loop
 function update(stub) {
     let command;

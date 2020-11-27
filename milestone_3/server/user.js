@@ -180,21 +180,28 @@ function deleteAccount(call, callback) {
 
 function deleteAccountHelper(call, callback, isAdmin, token) {
     console.log('Delete account helper: ', call.request.username);
-    clientsCollection.findOne({username: call.request.username}).then(user => {
-        let logInReply;
 
-        if (user && user.token === token || isAdmin) {
-            clientsCollection.remove(
-                {username: user.username}
-            );
-            logInReply = {status: 1, message: 'User removed.'};
-            callback(null, logInReply);
+    try {
+        clientsCollection.findOne({username: call.request.username}).then(user => {
+            let reply;
 
-        } else {
-            logInReply = {status: 0, message: 'Tokens don\'t match.'};
-            callback(null, logInReply);
-        }
-    });
+            if (user && user.token === token || isAdmin) {
+                clientsCollection.remove(
+                    {username: user.username}
+                );
+                reply = {status: 1, message: 'User removed.'};
+                callback(null, reply);
+
+            } else {
+                reply = {status: 0, message: 'Tokens don\'t match.'};
+                callback(null, reply);
+            }
+        });
+    } catch (e) {
+        console.log(e);
+        const reply = {status: 0, message: 'Account doesn\'t exist.'};
+        callback(null, reply);
+    }
 }
 
 function addUserToCollection(user, callback) {
