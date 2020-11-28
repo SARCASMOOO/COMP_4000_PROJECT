@@ -8,10 +8,10 @@ const protoLoader = require('@grpc/proto-loader');
 const fs = require('fs');
 const {MongoClient} = require('mongodb');
 
-
 // Helper classes
-const user = require('./user');
-const fileSystem = require('./fileSystem');
+const user = require('./User');
+const fileSystem = require('./FileSystem');
+const mount = require('./Mount').Mount;
 
 // Globals
 const URI = "mongodb://admin:admin@localhost:27017/comp4000";
@@ -69,7 +69,8 @@ function startServer(DOMAIN, PORT, hello_proto) {
         unlink: fileSystem.unlink,
         mkdir: fileSystem.mkdir,
         rmdir: fileSystem.rmdir,
-        chmod: fileSystem.chmod
+        chmod: fileSystem.chmod,
+        addMountPoint: mount.addMountPoint
     };
 
     // The credentials part I borrowed from the following repository
