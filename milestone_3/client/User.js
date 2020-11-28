@@ -177,11 +177,31 @@ function adminUpdatePassword(stub, currentUser) {
     }
 }
 
+// Mount
+function mountPoint(stub, curentUser) {
+    if (!curentUser) {
+        console.log('Please login before trying to mount.');
+        console.log(curentUser);
+        update(stub);
+    } else {
+        const mountPoint = UI.getMountPoint();
+        stub.addMountPoint({mountPoint: mountPoint}, function (err, response) {
+            if (response.status === 0) {
+                console.log(`Failed to mount: ${mountPoint}, Message: ${response.message}`);
+            } else {
+                console.log('Response: :', response.message);
+            }
+            update(stub);
+        })
+    }
+}
+
 // Loop
 function update(stub) {
     let command;
     const msg = ` Please type one of the following commands: 0 to exit, 1 for sign up, 2 for login, 3 to update password, 4 to remove account.
-    If you are an admin type 5 to create a new user, 6 to delete a specific user, and 7 to update a password for a specific user.`;
+    If you are an admin type 5 to create a new user, 6 to delete a specific user, and 7 to update a password for a specific user.
+    Type 8 to request to mount a folder.`;
 
     if (isUserLogedIn(curentUser)) {
         console.log('Logged in as: ', curentUser);
@@ -214,6 +234,9 @@ function update(stub) {
             break;
         case "7":
             adminUpdatePassword(stub, curentUser);
+            break;
+        case "8":
+            mountPoint(stub, curentUser);
             break;
         default:
             console.log('Invalid option. Please select one of the options provided.');

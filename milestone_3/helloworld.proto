@@ -9,6 +9,7 @@ option objc_class_prefix = "HLW";
 package helloworld;
 
 service Greeter {
+  //  User Calls
   rpc SignUp (SignUpRequest) returns (UserInfoReply) {}
   rpc LogIn (UserInfoRequest) returns (LoginReply) {}
   rpc updatePassword (PasswordReset) returns (UserInfoReply) {}
@@ -16,22 +17,27 @@ service Greeter {
 
   // Filesystem Calls
   rpc readdir (ReaddirMsg) returns (ReaddirReply) {}
-
   rpc access (AccessMsg) returns (AccessReply) {}
   rpc getattr (GetattrMsg) returns (GetattrReply) {}
   rpc open (OpenMsg) returns (OpenReply) {}
-
   rpc read (ReadMsg) returns (ReadReply) {}
   rpc opendir (OpendirMsg) returns (OpendirReply) {}
   rpc statfs (StatfsMsg) returns (StatfsReply) {}
   rpc create (CreateMsg) returns (CreateReply) {}
-
   rpc write (WriteMsg) returns (WriteReply) {}
   rpc unlink (UnlinkMsg) returns (UnlinkReply) {}
   rpc mkdir (MkdirMsg) returns (MkdirReply) {}
   rpc rmdir (RmdirMsg) returns (RmdirReply) {}
-
   rpc chmod (ChmodMsg) returns (ChmodReply) {}
+
+  // Mount Calls
+  rpc addMountPoint (addMountPointMsg) returns (UserInfoReply) {}
+
+}
+
+// Mount Messages
+message addMountPointMsg {
+  string mountPoint = 1;
 }
 
 // Filesystem Messages

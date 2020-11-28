@@ -65,10 +65,16 @@ function getUserCredentialsSignUp() {
     return user;
 }
 
+function getMountPoint() {
+    const enterMountPointPrompt = 'Please enter your mount point.';
+    return readInput(enterMountPointPrompt);
+}
+
 module.exports = {
     getUserName: getUserName,
     getUserPasswordSignUp: getUserPasswordSignUp,
     getUserCredentialsLogin: getUserCredentialsLogin,
     getUserCredentialsSignUp: getUserCredentialsSignUp,
+    getMountPoint: getMountPoint
 };
 
