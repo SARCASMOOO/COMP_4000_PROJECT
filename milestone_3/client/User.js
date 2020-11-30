@@ -3,7 +3,7 @@ const UI = require('./UI');
 const Client = require('./Client');
 
 let curentUser;
-
+let fuse;
 const readInput = msg => readlineSync.question(msg);
 
 // CLIENT FUNCTIONS
@@ -191,7 +191,8 @@ function mountPoint(stub, curentUser) {
             } else {
                 console.log('Response: :', response.message);
             }
-            update(stub);
+
+            start(stub);
         })
     }
 }
@@ -212,7 +213,7 @@ function update(stub) {
     command = readInput(msg);
     switch (command) {
         case "0":
-            process.exit(1);
+            unmoundFuse(() => process.exit(1));
             break;
         case "1":
             signUp(stub);
@@ -244,7 +245,23 @@ function update(stub) {
     }
 }
 
+function unmoundFuse(cb) {
+    fuse.unmount(err => {
+        if (err) {
+            console.log('filesystem at ' + fuse.mnt + ' not unmounted', err)
+        } else {
+            console.log('filesystem at ' + fuse.mnt + ' unmounted')
+        }
+        cb();
+    })
+}
+
+
+function saveFuse(tempFuse) {
+    fuse = tempFuse;
+}
 module.exports = {
-    update: update
+    update: update,
+    saveFuse: saveFuse
 };
 

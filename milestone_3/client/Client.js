@@ -42,33 +42,35 @@ function main() {
     );
 
     const stub = new hello_proto.Greeter(ADDRESS, credentials);
-
-    // start(client);
-    User.update(stub);
+    // User.update(stub);
+    start(stub);
 }
-
-
 
 main();
 
-function start(client) {
+function start(stub) {
     console.log(ops);
-    ops.setClient(client);
+    ops.setClient(stub);
     const fuse = new Fuse('./fuse', ops, { force: false, displayFolder: true });
 
     fuse.mount(err => {
         if (err) throw err
-        console.log('filesystem mounted on ' + fuse.mnt)
+        console.log('filesystem mounted on ' + fuse.mnt);
+        User.saveFuse(fuse);
+        // User.update(stub);
     });
 
     process.once('SIGINT', function () {
-        fuse.unmount(err => {
-            if (err) {
-                console.log('filesystem at ' + fuse.mnt + ' not unmounted', err)
-            } else {
-                console.log('filesystem at ' + fuse.mnt + ' unmounted')
-            }
-        })
+        unmoundFuse();
     })
 }
 
+function unmoundFuse() {
+    fuse.unmount(err => {
+        if (err) {
+            console.log('filesystem at ' + fuse.mnt + ' not unmounted', err)
+        } else {
+            console.log('filesystem at ' + fuse.mnt + ' unmounted')
+        }
+    })
+}
