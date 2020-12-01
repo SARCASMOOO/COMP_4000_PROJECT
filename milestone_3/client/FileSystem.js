@@ -12,7 +12,7 @@ const ops = {
     readdir: function (path, cb) {
         client.readdir({path: path},
             function (err, response) {
-                console.log('here', response);
+                // console.log('here', response);
                 if (err) console.log(err);
                 if (response) return process.nextTick(cb, 0, response.filenames);
                 return process.nextTick(cb, 0);
@@ -23,7 +23,7 @@ const ops = {
     access: function (path, mode, cb) {
         client.access({path: path, mode: mode},
             function (err, response) {
-                console.log('here', response);
+                // console.log('here', response);
                 if (err) console.log(err);
                 return process.nextTick(cb, 0);
             });
@@ -34,11 +34,11 @@ const ops = {
     getattr: function (path, cb) {
         client.getattr({path: path},
             function (err, response) {
-                console.log('here11', response);
-                if (err) console.log(err);
+                // console.log('here11', response);
+                // if (err) console.log(err);
 
                 if (response.tempStat) {
-                    console.log('111');
+                    // console.log('111');
                     response.tempStat.atime = new Date(response.tempStat.atime);
                     response.tempStat.mtime = new Date(response.tempStat.mtime);
                     response.tempStat.ctime = new Date(response.tempStat.ctime);
@@ -56,8 +56,8 @@ const ops = {
         const tempPromise = new Promise( (resolve, reject) => {
             client.open({path: path, flags: flags}, function (err, response) {
                 if (err) console.log(err);
-                console.log('open fd is: ', response.fd);
-                console.log('response is: ', response);
+                // console.log('open fd is: ', response.fd);
+                // console.log('response is: ', response);
                 resolve(response.fd);
             })
         });
@@ -70,7 +70,7 @@ const ops = {
     // Called when contents of a file is being read.
     read: function (path, fd, buf, len, pos, cb) {
         client.read({ path, fd, buf, len, pos}, function (err, response) {
-            if (err) console.log(err);
+            // if (err) console.log(err);
             buf.set(response.buf)
             process.nextTick(cb, buf.length);
         });

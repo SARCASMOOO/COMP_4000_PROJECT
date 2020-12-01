@@ -42,7 +42,6 @@ function main() {
     );
 
     const stub = new hello_proto.Greeter(ADDRESS, credentials);
-    // User.update(stub);
     start(stub);
 }
 
@@ -57,7 +56,7 @@ function start(stub) {
         if (err) throw err
         console.log('filesystem mounted on ' + fuse.mnt);
         User.saveFuse(fuse);
-        // User.update(stub);
+        User.update(stub);
     });
 
     process.once('SIGINT', function () {

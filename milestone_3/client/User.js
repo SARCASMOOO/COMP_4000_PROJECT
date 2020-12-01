@@ -1,10 +1,14 @@
-const readlineSync = require("readline-sync");
 const UI = require('./UI');
 const Client = require('./Client');
+const readline = require('readline');
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
 
 let curentUser;
 let fuse;
-const readInput = msg => readlineSync.question(msg);
 
 // CLIENT FUNCTIONS
 function signUp(stub) {
@@ -129,7 +133,8 @@ function adminDeleteAccount(stub, currentUser) {
         console.log('Please enter the details for the account you want to delete.');
         const username = UI.getUserName();
 
-        stub.deleteAccount({username: username,
+        stub.deleteAccount({
+                username: username,
                 isAdmin: currentUser.isAdmin, adminName: currentUser.userName, adminToken: currentUser.token
             },
             function (err, response) {
@@ -159,7 +164,7 @@ function adminUpdatePassword(stub, currentUser) {
         console.log(curentUser);
         update(stub);
     } else {
-        if(!currentUser.isAdmin) {
+        if (!currentUser.isAdmin) {
             console.log('You must be an admin to run this function.');
         } else {
             // TODO: Need to check if user is an admin.
@@ -210,39 +215,41 @@ function update(stub) {
         console.log('Not logged in.');
     }
 
-    command = readInput(msg);
-    switch (command) {
-        case "0":
-            unmoundFuse(() => process.exit(1));
-            break;
-        case "1":
-            signUp(stub);
-            break;
-        case "2":
-            login(stub);
-            break;
-        case "3":
-            updatePassword(stub);
-            break;
-        case "4":
-            deleteAccount(stub);
-            break;
-        case "5":
-            adminCreateUser(stub, curentUser);
-            break;
-        case "6":
-            adminDeleteAccount(stub, curentUser);
-            break;
-        case "7":
-            adminUpdatePassword(stub, curentUser);
-            break;
-        case "8":
-            mountPoint(stub, curentUser);
-            break;
-        default:
-            console.log('Invalid option. Please select one of the options provided.');
-            update(stub);
-    }
+    rl.question(msg, (answer) => {
+        switch (command) {
+            case "0":
+                unmoundFuse(() => process.exit(1));
+                break;
+            case "1":
+                signUp(stub);
+                break;
+            case "2":
+                login(stub);
+                break;
+            case "3":
+                updatePassword(stub);
+                break;
+            case "4":
+                deleteAccount(stub);
+                break;
+            case "5":
+                adminCreateUser(stub, curentUser);
+                break;
+            case "6":
+                adminDeleteAccount(stub, curentUser);
+                break;
+            case "7":
+                adminUpdatePassword(stub, curentUser);
+                break;
+            case "8":
+                mountPoint(stub, curentUser);
+                break;
+            default:
+                console.log('Invalid option. Please select one of the options provided.');
+                update(stub);
+        }
+        rl.close();
+    });
 }
 
 function unmoundFuse(cb) {
@@ -260,6 +267,7 @@ function unmoundFuse(cb) {
 function saveFuse(tempFuse) {
     fuse = tempFuse;
 }
+
 module.exports = {
     update: update,
     saveFuse: saveFuse
