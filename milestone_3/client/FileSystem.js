@@ -29,7 +29,6 @@ const ops = {
             });
     },
 
-
     // Called when a path is being stat'ed.
     getattr: function (path, cb) {
         client.getattr({path: path},

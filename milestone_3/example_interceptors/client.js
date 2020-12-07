@@ -5,12 +5,6 @@ const PROTO_PATH = __dirname + '/../helloworld.proto';
 const grpc = require('grpc');
 const protoLoader = require('@grpc/proto-loader');
 const fs = require('fs');
-const Fuse = require('fuse-native');
-const User = require('./User');
-
-// Helper functions
-const ops = require("./FileSystem").ops;
-
 
 // Config
 const packageDefinition = protoLoader.loadSync(
@@ -22,9 +16,6 @@ const packageDefinition = protoLoader.loadSync(
         defaults: true,
         oneofs: true
     });
-
-// User session
-let curentUser;
 
 const hello_proto = grpc.loadPackageDefinition(packageDefinition).helloworld;
 
@@ -48,28 +39,9 @@ function main() {
 main();
 
 function start(stub) {
-    console.log(ops);
-    ops.setClient(stub);
-    const fuse = new Fuse('./fuse', ops, { force: false, displayFolder: true });
-
-    fuse.mount(err => {
-        if (err) throw err
-        console.log('filesystem mounted on ' + fuse.mnt);
-        User.saveFuse(fuse);
-        User.update(stub);
-    });
-
-    process.once('SIGINT', function () {
-        unmoundFuse(fuse);
-    })
-}
-
-function unmoundFuse(fuse) {
-    fuse.unmount(err => {
-        if (err) {
-            console.log('filesystem at ' + fuse.mnt + ' not unmounted', err)
-        } else {
-            console.log('filesystem at ' + fuse.mnt + ' unmounted')
+    stub.test({},
+        function (err, response) {
+            console.log(response);
         }
-    })
+    );
 }

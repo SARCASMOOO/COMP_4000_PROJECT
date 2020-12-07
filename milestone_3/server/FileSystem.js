@@ -1,10 +1,14 @@
 const fs = require('fs');
 const Fuse = require('fuse-native');
-
 const root_file_path = '/Users/main/Coding/school/COMP_4000/milestone_3/server/real';
+let acl;
+
+// TODO: This is pretty ugly. Should clean this up.
+const setACL = tempAcl => acl = tempAcl;
 
 const ops = {
     readdir: function (call, callback) {
+        acl.getRulesList().then(rules => console.log(rules));
         const filenames = fs.readdirSync(root_file_path + call.request.path);
         console.log('server readdir');
         console.log('filenames is: ', filenames);
@@ -79,6 +83,7 @@ const ops = {
 }
 
 module.exports = {
+    setACL: setACL,
     readdir: ops.readdir,
     access: ops.access,
     getattr: ops.getattr,

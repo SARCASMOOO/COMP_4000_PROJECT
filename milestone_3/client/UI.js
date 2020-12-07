@@ -1,73 +1,89 @@
-const readlineSync = require("readline-sync");
-const validatePassword = (password, confirmPassword) => password === confirmPassword;
-const readInput = msg => readlineSync.question(msg);
+const readline = require('readline');
 
-function getUserName(msg) {
-    if(msg) return readInput(msg);
-    const enterUserNamePrompt = 'Please enter your username.';
-    return readInput(enterUserNamePrompt);
+const readInput = (rl, question) => {
+    return new Promise((resolve, reject) => {
+        rl.question(question, (answer) => {
+            resolve(answer);
+        })
+    });
 }
 
-function getUserIsAdminSignUp() {
-    const isAdminPrompt = 'Please type 1 to make an admin account or anything else to not have admin: ';
-    const isAdmin = readInput(isAdminPrompt);
-    return (isAdmin === '1');
-}
+async function askQuestion(questions) {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
 
-function getUserPasswordSignUp() {
-    const enterPasswordPrompt = 'Please enter your password: ';
-    const enterConfirmPasswordPrompt = 'Confirm Password';
-    const attemptsExceeded = 'You exceeded three attempts. Exiting.';
-    const passwordsDidNotMatch = 'Passwords didn\'t match.';
+    const questionPromises = [];
+    let question;
 
-    let attempts = 0;
-
-    while (attempts < 3) {
-        const password = readInput(enterPasswordPrompt);
-        const confirmPassword = readInput(enterConfirmPasswordPrompt);
-
-        if (validatePassword(password, confirmPassword)) return password;
-        console.log(passwordsDidNotMatch);
-        attempts++;
+    for (question of questions) {
+        questionPromises.push(await readInput(rl, question));
     }
 
-    console.log(attemptsExceeded);
-    process.exit(1);
+    rl.close();
+
+    return Promise.all(questionPromises);
 }
+
+function getUserName(msg) {
+    const enterUserNamePrompt = 'Please enter your username.';
+    let tempMsg = msg ? msg : enterUserNamePrompt;
+    return askQuestion([tempMsg]);
+}
+
+async function getUserPasswordSignUp() {
+    const enterPasswordPrompt = 'Please enter your password: ';
+    const enterConfirmPasswordPrompt = 'Confirm Password';
+
+    return new Promise((accept, reject) => {
+        const passwordPromise = askQuestion([enterPasswordPrompt, enterConfirmPasswordPrompt]);
+        passwordPromise.then(value => {
+            if (value[0] === value[1]) accept(value[0]);
+            accept(false);
+        });
+    })
+}
+
 
 // TODO: This needs to store the users token.
-function getUserCredentialsLogin(msg) {
+async function getUserCredentialsLogin(msg) {
     const user = {userName: null, password: null};
 
-    user.userName = getUserName(msg);
-    user.password = readInput('Password');
-
-    console.log('Username is: ' + user.userName);
-    console.log('Password is: ' + user.password);
-
-    return user;
+    return new Promise((accept, reject) => {
+        const passwordPromise = askQuestion(['Please enter your username.', 'Please enter your password.']);
+        passwordPromise.then(value => {
+            user.userName = value[0];
+            user.password = value[1];
+            accept(user);
+        });
+    });
 }
 
-function getUserCredentialsSignUp() {
-    const user = {
-        userName: null,
-        password: null,
-        isAdmin: null
-    };
+async function getUserCredentialsSignUp() {
+    const user = {userName: null, password: null, isAdmin: null};
+    const question = [
+        'Please enter your username.',
+        'Please enter your password.',
+        'Type 1 if you are an admin.'];
 
-    user.userName = getUserName();
-    user.password = getUserPasswordSignUp();
-    user.isAdmin = getUserIsAdminSignUp();
-
-    console.log('Username is: ' + user.userName);
-    console.log('Password is: ' + user.password);
-
-    return user;
+    return new Promise((accept, reject) => {
+        const promise = askQuestion(question);
+        promise.then(value => {
+            user.userName = value[0];
+            user.password = value[1];
+            user.isAdmin = value[2];
+            accept(user);
+        });
+    });
 }
 
-function getMountPoint() {
-    const enterMountPointPrompt = 'Please enter your mount point.';
-    return readInput(enterMountPointPrompt);
+function stub() {
+    getUserCredentialsSignUp().then(value => console.log(value));
+    getUserName().then(value => console.log(value));
+    getUserPasswordSignUp().then(value => console.log(value));
+    getUserCredentialsLogin().then(value => console.log(value));
+    getUserCredentialsSignUp().then(value => console.log(value));
 }
 
 module.exports = {
@@ -75,6 +91,6 @@ module.exports = {
     getUserPasswordSignUp: getUserPasswordSignUp,
     getUserCredentialsLogin: getUserCredentialsLogin,
     getUserCredentialsSignUp: getUserCredentialsSignUp,
-    getMountPoint: getMountPoint
+    askQuestion: askQuestion
 };
 

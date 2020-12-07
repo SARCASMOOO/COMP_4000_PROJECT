@@ -12,6 +12,7 @@ const {MongoClient} = require('mongodb');
 const user = require('./User');
 const fileSystem = require('./FileSystem');
 const mount = require('./Mount').Mount;
+const ACL = require('./ACL/ACL').ACL;
 
 // Globals
 const URI = "mongodb://admin:admin@localhost:27017/comp4000";
@@ -20,12 +21,16 @@ const COLLECTION_NAME = 'clients';
 
 let clientsCollection;
 let mongoClient;
+let acl;
 
 function connectToDB(callback) {
     MongoClient.connect(URI, (e, client) => {
         const db = client.db(DB_NAME);
         mongoClient = client;
         clientsCollection = db.collection(COLLECTION_NAME);
+        acl = new ACL(db.collection('ACL'));
+        fileSystem.setACL(acl);
+        module.exports = {acl: acl};
         callback();
     });
 }
@@ -96,4 +101,5 @@ function main() {
 }
 
 main();
+
 

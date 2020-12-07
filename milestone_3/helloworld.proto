@@ -33,6 +33,14 @@ service Greeter {
   // Mount Calls
   rpc addMountPoint (addMountPointMsg) returns (UserInfoReply) {}
 
+
+//   Testing something
+  rpc test (testMsg) returns (testReply) {}
+}
+
+message testMsg {};
+message testReply {
+    string response = 1;
 }
 
 // Mount Messages
