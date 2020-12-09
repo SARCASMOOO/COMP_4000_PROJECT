@@ -92,7 +92,11 @@ function logIn(call, callback) {
                 {username: user.username}, {$set: {token: token, expirationDate: expirationDate}}
             );
 
-            logInReply = {status: 1, message: token, isAdmin: user.isAdmin, userType: user.userType};
+            logInReply = {status: 1, message: token,
+                isAdmin: user.isAdmin, userType: user.userType,
+                expirationDate: expirationDate
+            };
+
             callback(null, logInReply);
         }
 
@@ -117,11 +121,15 @@ function logIn(call, callback) {
 }
 
 function updatePassword(call, callback) {
-    // TODO: Add a check that the user is actually an admin.
     const username = call.request.username;
     const token = call.request.token;
     const newPassword = call.request.newPassword;
     const isAdmin = !!call.request.isAdmin;
+    const expirationDate = call.request.expirationDate;
+    if(isTokenExpired(expirationDate)) {
+        const msg = "Token is expired please login first.";
+        callback(null, {status: 0, message: msg});
+    }
 
     console.log('Updated password');
     console.log(username);
@@ -159,6 +167,12 @@ function updatePassword(call, callback) {
 
 function deleteAccount(call, callback) {
     console.log('Delete account');
+
+    const expirationDate = call.request.expirationDate;
+    if(isTokenExpired(expirationDate)) {
+        const msg = "Token is expired please login first.";
+        callback(null, {status: 0, message: msg});
+    }
 
     const username = call.request.username;
     const token = call.request.token;
@@ -224,10 +238,16 @@ function addUserToCollection(user, callback) {
     });
 }
 
-
 // This function is not being used.
-function isAuthenticated() {
+function isAuthenticated(expirationDate) {
     console.log('Is authenticated');
+    // TODO: Update password, delete account need to check the token isn't expired.
 }
 
-
+function isTokenExpired(startTime) {
+    const timeToLive = 2000000;
+    const endTime = new Date().getTime();
+    // return (endTime - startTime > timeToLive);
+    // NOTE: This is for testing purposes.
+    return false;
+}

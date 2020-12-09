@@ -48,7 +48,16 @@ class UpdateLoop {
                     this.user.adminUpdatePassword(stub, this.update);
                     break;
                 case "8":
-                    this.user.setMountPoint(this.update, '/a/b/c');
+                    this.user.setMountPoint(this.update);
+                    break;
+                case "9":
+                    this.user.createRuleForUserRequest(stub);
+                    break;
+                case "10":
+                    this.user.readRulesByUserRequest(stub);
+                    break;
+                case "11":
+                    this.user.updateRuleRequest(stub);
                     break;
                 default:
                     console.log('Invalid option. Please select one of the options provided.');

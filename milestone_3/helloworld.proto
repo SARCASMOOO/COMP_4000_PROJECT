@@ -30,6 +30,53 @@ service Greeter {
   rpc mkdir (MkdirMsg) returns (MkdirReply) {}
   rpc rmdir (RmdirMsg) returns (RmdirReply) {}
   rpc chmod (ChmodMsg) returns (ChmodReply) {}
+
+  // ACL Calls
+  rpc createRuleForUser (createRuleForUserRequest) returns (createRuleForUserReply) {}
+  rpc readRulesByUser (readRulesByUserRequest) returns (readRulesByUserReply) {}
+  rpc updateRule (updateRuleRequest) returns (updateRuleReply) {}
+  rpc removeRule (removeRuleRequest) returns (removeRuleReply) {}
+}
+
+// ACL Messages
+message createRuleForUserRequest {
+    rule newRule = 1;
+}
+
+message createRuleForUserReply {
+  string message = 1;
+}
+
+message readRulesByUserRequest {
+  string username = 1;
+}
+
+message readRulesByUserReply {
+  repeated rule rules = 1;
+}
+
+message updateRuleRequest {
+  string ruleId = 1;
+  rule update = 2;
+}
+
+message updateRuleReply {
+  string message = 1;
+}
+
+message removeRuleRequest {
+  string ruleId = 1;
+}
+
+message removeRuleReply {
+  string message = 1;
+}
+
+message rule {
+  string username = 1;
+  string path = 2;
+  string permissions = 3;
+  string mode = 4;
 }
 
 // Mount Messages
@@ -40,8 +87,8 @@ message setMountPointRequest {
 }
 
 message setMountPointReply {
-    string message = 1;
-    bool status = 2;
+  string message = 1;
+  bool status = 2;
 }
 
 // Filesystem Messages
@@ -109,7 +156,7 @@ message StatfsMsg {
 }
 
 message StatfsReply {
-    StatObject stat = 1;
+  StatObject stat = 1;
 }
 
 message CreateMsg {
@@ -185,6 +232,7 @@ message PasswordReset {
   string token = 2;
   string newPassword = 3;
   bool isAdmin = 4;
+  uint64 expirationDate = 5;
 }
 
 message AccountRequest {
@@ -198,6 +246,7 @@ message DeleteAccountRequest {
   bool isAdmin = 3;
   string adminName = 4;
   string adminToken = 5;
+  uint64 expirationDate = 6;
 }
 
 message SignUpRequest {
@@ -219,6 +268,7 @@ message LoginReply {
   int32 status = 2;
   string message = 3;
   string userType = 4;
+  uint64 expirationDate = 5;
 }
 
 message UserInfoReply {

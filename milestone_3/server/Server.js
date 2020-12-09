@@ -49,6 +49,12 @@ function loadProto() {
 }
 
 function setMountPoint(call, callback) {
+    const expirationDate = call.request.expirationDate;
+    if (isTokenExpired(expirationDate)) {
+        const msg = "Token is expired please login first.";
+        callback(null, {status: false, message: msg});
+    }
+
     console.log('Request is: ', call.request);
     const {mountPoint, username, userType} = call.request;
     const r = acl.isAccess(mountPoint, userType, username);
@@ -83,7 +89,11 @@ function startServer(DOMAIN, PORT, hello_proto) {
         mkdir: fileSystem.mkdir,
         rmdir: fileSystem.rmdir,
         chmod: fileSystem.chmod,
-        setMountPoint: setMountPoint
+        setMountPoint: setMountPoint,
+        createRuleForUser: createRuleForUser,
+        readRulesByUser: readRulesByUser,
+        updateRule: updateRule,
+        removeRule: removeRule
     };
 
     // The credentials part I borrowed from the following repository
@@ -108,6 +118,43 @@ function main() {
     connectToDB(startServerWrapper);
 }
 
+function isTokenExpired(startTime) {
+    const timeToLive = 2000;
+    const endTime = new Date().getTime();
+    return (endTime - startTime > timeToLive);
+}
+
 main();
 
+// ACL functions
+function createRuleForUser(call, callback) {
+    const rule = call.request.newRule;
+    acl.createRuleForUser(rule).then(() => {
+        callback(null, {message: 'New rule was created.'});
+    });
+}
+
+function readRulesByUser(call, callback) {
+    const username = call.request.username;
+    acl.readRulesByUser(username).then(rules => {
+        callback(null, {rules: rules});
+    });
+}
+
+function updateRule(call, callback) {
+    const ruleId = call.request.ruleId;
+    const update = call.request.update;
+
+    acl.updateRule(ruleId, update).then(() => {
+        callback(null, {message: 'Rule updated'});
+    });
+}
+
+function removeRule(call, callback) {
+    const ruleId = call.request.ruleId;
+
+    acl.removeRule(ruleId).then(() => {
+        callback(null, {message: 'Rule removed'});
+    });
+}
 

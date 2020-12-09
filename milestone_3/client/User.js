@@ -34,6 +34,7 @@ class User {
             this.curentUser.token = response.message;
             this.curentUser.isAdmin = !!response.isAdmin;
             this.curentUser.userType = response.userType;
+            this.curentUser.expirationDate = response.expirationDate;
             console.log(this.curentUser);
         }
         cb(stub, this.curentUser);
@@ -43,7 +44,8 @@ class User {
         if (!util.isUserLogedInWrapper(this.curentUser)) {
             cb(stub, this.curentUser);
             return
-        };
+        }
+        ;
 
         const newPassword = await UI.getUserPasswordSignUp();
 
@@ -56,7 +58,8 @@ class User {
         const updateData = {
             username: this.curentUser.username,
             token: this.curentUser.token,
-            newPassword: newPassword
+            newPassword: newPassword,
+            expirationDate: this.curentUser.expirationDate
         };
 
         console.log('User for update is: ', this.curentUser);
@@ -82,7 +85,8 @@ class User {
 
         const userToDelete = {
             username: this.curentUser.username,
-            token: this.curentUser.token
+            token: this.curentUser.token,
+            expirationDate: this.curentUser.expirationDate
         };
 
         stub.deleteAccount(userToDelete, (err, response) => this.deleteAccountCallback(err, response, cb, stub));
@@ -107,6 +111,7 @@ class User {
             const data = {
                 username: user.username, password: user.password,
                 userType: user.userType, isAdmin: user.isAdmin,
+                expirationDate: this.curentUser.expirationDate,
                 adminName: this.curentUser.username, adminToken: this.curentUser.token,
             }
 
@@ -130,7 +135,8 @@ class User {
                 username: username,
                 isAdmin: this.curentUser.isAdmin,
                 adminName: this.curentUser.username,
-                adminToken: this.curentUser.token
+                adminToken: this.curentUser.token,
+                expirationDate: this.curentUser.expirationDate
             };
 
             console.log('Data is, ', data);
@@ -142,7 +148,7 @@ class User {
         }
     }
 
-     adminUpdatePassword = async (stub, cb) => {
+    adminUpdatePassword = async (stub, cb) => {
         const msg = 'Please enter the user name of the user you would like to update.';
         const tempUser = await UI.getUserCredentialsLogin(msg);
         const username = tempUser.username;
@@ -155,13 +161,115 @@ class User {
             return;
         }
 
-        const data = {username: username, newPassword: newPassword, isAdmin: true};
+        const data = {
+            username: username, newPassword: newPassword, isAdmin: true,
+            expirationDate: this.curentUser.expirationDate
+        };
+
         stub.updatePassword(data, (err, response) => this.updatePasswordCallback(err, response, cb, stub));
     }
 
-    setMountPoint(cb, mountPoint) {
-        console.log('Requested mountpoint is: ', mountPoint);
-        this.operations.setMountPoint(cb, this.curentUser, mountPoint);
+    setMountPoint(cb) {
+        const question = ['Please enter a mount point.'];
+        UI.askQuestion(question).then(results => {
+                const mountPoint = results[0];
+                console.log('Requested mountpoint is: ', mountPoint);
+                this.operations.setMountPoint(cb, this.curentUser, mountPoint);
+            }
+        );
+    }
+
+    createRuleForUserRequest(stub) {
+        if(!this.curentUser.username) {
+            console.log('Please login first.');
+        }
+
+        const question = [
+            'Please enter the path you would like to request.',
+            'Please type 1 to allow this rule or 0 to deny this rule'
+        ];
+
+        const username = this.curentUser.username;
+        const permissions = 'r';
+
+        UI.askQuestion(question).then(results => {
+                const path = results[0];
+                let mode;
+                if(results[0] === '1') {
+                    mode = 'allow'
+                } else {
+                    mode = 'deny';
+                }
+
+                const rule = {
+                    username: username,
+                    path: path,
+                    permissions: permissions,
+                    mode: mode
+                }
+
+                console.log('Requested rule is: ', rule);
+                stub.createRuleForUser({rule: rule}, (err, response) => {
+                    console.log('Response is: ', response);
+                });
+            }
+        );
+    }
+
+    readRulesByUserRequest(stub) {
+        if(!this.curentUser.username) {
+            console.log('Please login first.');
+        }
+
+        stub.readRulesByUser({username: this.curentUser.username}, (err, response) => {
+            console.log('Response is: ', response);
+        })
+    }
+
+    updateRuleRequest(stub) {
+        if(!this.curentUser.username) {
+            console.log('Please login first.');
+        }
+
+        const question = [
+            'Please enter the path you would like to request.',
+            'Please type 1 to allow this rule or 0 to deny this rule.',
+            'Please enter the ID of the rule you want to update.'
+        ];
+
+        const username = this.curentUser.username;
+        const permissions = 'r';
+
+        UI.askQuestion(question).then(results => {
+                const path = results[0];
+                let mode;
+                if(results[0] === '1') {
+                    mode = 'allow'
+                } else {
+                    mode = 'deny';
+                }
+
+                const rule = {
+                    username: username,
+                    path: path,
+                    permissions: permissions,
+                    mode: mode
+                }
+
+                const ruleId = results[2];
+
+                console.log('Requested rule is: ', rule);
+                stub.updateRule({
+                    ruleId: ruleId,
+                    rule: rule
+                }, (err, response) => {
+                    console.log('Response is: ', response);
+                });
+            }
+        );
+    }
+
+    removeRuleRequest() {
     }
 }
 

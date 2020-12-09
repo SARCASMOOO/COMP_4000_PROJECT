@@ -17,7 +17,11 @@ class Operations {
         // If request passes then save mountpoint in operations
         // Send mountpoint with requests then add on top of filesystem calls
         // Once that is done then i need to check ACL for permission and alter calls as such.
-        this.stub.setMountPoint({mountPoint: mountPoint, username: curentUser.username, userType: curentUser.userType}, (err, response) => {
+        this.stub.setMountPoint({
+            mountPoint: mountPoint, username: curentUser.username,
+            userType: curentUser.userType,
+            expirationDate: curentUser.expirationDate
+        }, (err, response) => {
             if (err) console.log(err);
             // TODO: Request mount point then save it if allowed.
             console.log('Requested mount point is: ', mountPoint);

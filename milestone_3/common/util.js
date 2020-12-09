@@ -11,10 +11,8 @@ module.exports = {
 
     generateExpirationDate: function () {
         const currentDate = new Date();
-        currentDate.setDate(currentDate.getDate() + 3);
-        return currentDate;
+        return currentDate.getTime();
     },
-
 
     isUserAdmin: user => (user && user.token && user.isAdmin && user.token.length > 0),
 

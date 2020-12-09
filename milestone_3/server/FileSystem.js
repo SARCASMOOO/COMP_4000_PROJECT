@@ -3,7 +3,7 @@ const Fuse = require('fuse-native');
 const root_file_path = '/Users/main/Coding/school/COMP_4000/milestone_3/server/real';
 let acl;
 
-// TODO: This is pretty ugly. Should clean this up.
+// TODO: Add ACL and expiration time check for readir and read.
 const setACL = tempAcl => acl = tempAcl;
 
 const ops = {
