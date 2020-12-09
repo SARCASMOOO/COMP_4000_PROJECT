@@ -19,6 +19,8 @@ function saveDB(clientsColl) {
 // Sign Up User
 function signUp(call, callback) {
     const user = {username: call.request.username, password: call.request.password, isAdmin: call.request.isAdmin};
+    console.log('Server side user: ', user);
+
     const saveUser = () => {
         const BCRYPT_SALT_ROUNDS = 12;
         bcrypt.hash(user.password, BCRYPT_SALT_ROUNDS).then(hashedPwd => {
@@ -125,6 +127,9 @@ function updatePassword(call, callback) {
 
     clientsCollection.findOne({username: tempUser.username}).then(user => {
         let logInReply;
+
+        console.log('User found:', user);
+        console.log('Token received', token);
 
         if (user && user.token === token ||  isAdmin) {
 

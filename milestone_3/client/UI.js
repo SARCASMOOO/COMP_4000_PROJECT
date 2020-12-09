@@ -53,7 +53,7 @@ async function getUserCredentialsLogin(msg) {
     return new Promise((accept, reject) => {
         const passwordPromise = askQuestion(['Please enter your username.', 'Please enter your password.']);
         passwordPromise.then(value => {
-            user.userName = value[0];
+            user.username = value[0];
             user.password = value[1];
             accept(user);
         });
@@ -61,7 +61,7 @@ async function getUserCredentialsLogin(msg) {
 }
 
 async function getUserCredentialsSignUp() {
-    const user = {userName: null, password: null, isAdmin: null};
+    const user = {username: null, password: null, isAdmin: null};
     const question = [
         'Please enter your username.',
         'Please enter your password.',
@@ -70,9 +70,9 @@ async function getUserCredentialsSignUp() {
     return new Promise((accept, reject) => {
         const promise = askQuestion(question);
         promise.then(value => {
-            user.userName = value[0];
+            user.username = value[0];
             user.password = value[1];
-            user.isAdmin = value[2];
+            user.isAdmin = (value[2] === '1');
             accept(user);
         });
     });

@@ -5,76 +5,69 @@ const PROTO_PATH = __dirname + '/../helloworld.proto';
 const grpc = require('grpc');
 const protoLoader = require('@grpc/proto-loader');
 const fs = require('fs');
-const Fuse = require('fuse-native');
+
+// Helper Classes
+const fuseWrapper = require('./FuseWrapper');
 const User = require('./User');
-const ops = require("./FileSystem").ops;
+const Operations = require('./Operations');
 
-// Constants
-const PORT = ':10001';
-const DOMAIN = 'localhost'
-const ADDRESS = DOMAIN + PORT;
+class Client {
+    constructor(domain, port) {
+        this.user = new User();
+        this.curentUser = null;
+        this.address = domain + port;
+    }
 
-// User session
-let curentUser;
+    // https://github.com/gbahamondezc/node-grpc-ssl/blob/master/
+    getCredentials() {
+        return grpc.credentials.createSsl(
+            fs.readFileSync('../certs/ca.crt'),
+            fs.readFileSync('../certs/client.key'),
+            fs.readFileSync('../certs/client.crt')
+        );
+    }
 
-// The credentials part I borrowed from the following repository
-// https://github.com/gbahamondezc/node-grpc-ssl/blob/master/
-const getCredentials = () => grpc.credentials.createSsl(
-    fs.readFileSync('../certs/ca.crt'),
-    fs.readFileSync('../certs/client.key'),
-    fs.readFileSync('../certs/client.crt')
-);
+    getProto() {
+        const packageDefinition = protoLoader.loadSync(
+            PROTO_PATH,
+            {
+                keepCase: true,
+                longs: String,
+                enums: String,
+                defaults: true,
+                oneofs: true
+            });
 
-function getProto() {
-    const packageDefinition = protoLoader.loadSync(
-        PROTO_PATH,
-        {
-            keepCase: true,
-            longs: String,
-            enums: String,
-            defaults: true,
-            oneofs: true
-        });
+        return grpc.loadPackageDefinition(packageDefinition).helloworld;
+    }
 
-    return grpc.loadPackageDefinition(packageDefinition).helloworld;
+    getStub(credentials, proto) {
+        const stub = new proto.Greeter(this.address, credentials);
+        this.stub = stub;
+        return stub;
+    }
+
+    getOperations(stub) {
+        if(this.operations) return this.operations;
+        console.log('Stub is 2, ', stub);
+        this.operations = new Operations(stub);
+        return this.operations.getOps();
+    }
+
+    main() {
+        const credentials = this.getCredentials();
+        const proto = this.getProto();
+        const stub = this.getStub(credentials, proto);
+        // const operations = this.getOperations(stub);
+        // this.fuseWrapper = new fuseWrapper(operations);
+        // this.fuseWrapper.mountFuse(stub);
+
+    }
 }
 
-function getStub(credentials, proto) {
-    const stub = new proto.Greeter(ADDRESS, credentials);
-    return stub;
-}
+const client =  new Client('localhost', ':10001');
+client.main();
 
-function moundFuse(stub) {
-    ops.setClient(stub);
-    const fuse = new Fuse('./fuse', ops, {force: false, displayFolder: true});
 
-    fuse.mount(err => {
-        if (err) throw err
-        console.log('filesystem mounted on ' + fuse.mnt);
-        User.saveFuse(fuse);
-        User.update(stub);
-    });
-
-    process.once('SIGINT', () => unmoundFuse(fuse));
-}
-
-function unmoundFuse(fuse) {
-    fuse.unmount(err => {
-        if (err) {
-            console.log('filesystem at ' + fuse.mnt + ' not unmounted', err)
-        } else {
-            console.log('filesystem at ' + fuse.mnt + ' unmounted')
-        }
-    })
-}
-
-function main() {
-    const credentials = getCredentials();
-    const proto = getProto();
-    const stub = getStub(credentials, proto);
-    moundFuse(stub);
-}
-
-main();
 
 
