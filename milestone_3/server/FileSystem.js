@@ -8,8 +8,23 @@ const setACL = tempAcl => acl = tempAcl;
 
 const ops = {
     readdir: function (call, callback) {
+        const isExpired = isTokenExpired(call.request.expirationDate);
+        if(isExpired) callback(null, {filenames: [], message: 'User is expired.'});
+        // TODO: Need to consult ACL for which filenames to return.
+        console.log('Username is: ', call.request.username);
         console.log('read mountpoint is: ', call.request.mountpoint);
-        const filenames = fs.readdirSync(root_file_path + call.request.path);
+        let filenames = fs.readdirSync(root_file_path + call.request.path);
+
+        filenames = filenames.filter(filename => acl.isAccess(
+            {
+                path: root_file_path + this.mountPoint + filename,
+                permissions: 'r'
+            },
+            call.request.userType,
+            call.request.username
+            )
+        );
+
         console.log('server readdir');
         console.log('filenames is: ', filenames);
         callback(null, {filenames: filenames});
@@ -37,13 +52,24 @@ const ops = {
     },
 
     read: function (call, callback) {
+        const isExpired = isTokenExpired(call.request.expirationDate);
+        if(isExpired) callback(null, {message: 'User is expired.'});
+
+        console.log('Username is: ', call.request.username);
         console.log('read mountpoint is: ', call.request.mountpoint);
-        const {path, fd, len, pos, buf} = call.request;
+        const {path, fd, len, pos, buf, username} = call.request;
         console.log('read(%s, %d, %d, %d)', path, fd, len, pos);
-        const size = fs.readSync(fd, buf, 0, len, pos);
-        console.log('buf: ', buf, ', size: ', size);
-        if (!size) callback(null, 0);
-        callback(null, {size: size, buf: buf});
+        const requestedRule = {path: path, permissions: 'r'};
+        const result = acl.isAccess(requestedRule, call.request.userType, username);
+
+        if(result) {
+            const size = fs.readSync(fd, buf, 0, len, pos);
+            console.log('buf: ', buf, ', size: ', size);
+            if (!size) callback(null, 0);
+            callback(null, {size: size, buf: buf});
+        } else {
+            callback(null, 0);
+        }
     },
 
     opendir: function (call, callback) {
@@ -82,6 +108,15 @@ const ops = {
         callback(null, {});
     }
 }
+
+function isTokenExpired(startTime) {
+    const timeToLive = 2000000;
+    const endTime = new Date().getTime();
+    // return (endTime - startTime > timeToLive);
+    // NOTE: This is for testing purposes.
+    return false;
+}
+
 
 module.exports = {
     setACL: setACL,

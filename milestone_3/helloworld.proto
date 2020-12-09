@@ -95,10 +95,14 @@ message setMountPointReply {
 message ReaddirMsg {
   string path = 1;
   string mountpoint = 2;
+  string username = 3;
+  string userType = 4;
+  uint64 expirationDate = 5;
 }
 
 message ReaddirReply {
   repeated string filenames = 1;
+  string message = 2;
 }
 
 message AccessMsg {
@@ -139,11 +143,15 @@ message ReadMsg {
   int32 len = 4;
   int32 pos = 5;
   string mountpoint = 6;
+  string username = 7;
+  string userType = 8;
+  uint64 expirationDate = 9;
 }
 
 message ReadReply {
   int32 size = 1;
   bytes buf = 2;
+  string message = 3;
 }
 
 message OpendirMsg {

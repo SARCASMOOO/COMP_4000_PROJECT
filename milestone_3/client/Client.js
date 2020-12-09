@@ -18,6 +18,10 @@ class Client {
         this.address = domain + port;
     }
 
+    getCurrentUser() {
+        return this.updateLoop.curentUser
+    }
+
     // https://github.com/gbahamondezc/node-grpc-ssl/blob/master/
     getCredentials() {
         return grpc.credentials.createSsl(
@@ -50,7 +54,7 @@ class Client {
     getOperations(stub) {
         if(this.operations) return this.operations.getOps();
         console.log('Stub is 2, ', stub);
-        this.operations = new Operations(stub);
+        this.operations = new Operations(stub, this.getCurrentUser);
         return this.operations.getOps();
     }
 

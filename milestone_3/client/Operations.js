@@ -1,15 +1,16 @@
 const fs = require('fs');
 
 class Operations {
-    constructor(stub) {
+    constructor(stub, getCurrentUser) {
         this.stub = stub;
         console.log(this.stub);
         this.ENOENT = -2;
         this.mountPoint = './';
+        this.getCurrentUser = getCurrentUser;
     }
 
     setMountPoint(cb, curentUser, mountPoint) {
-        if(!curentUser.token) {
+        if (!curentUser.token) {
             console.log('Please login before trying to mount a folder.');
         }
 
@@ -22,7 +23,7 @@ class Operations {
             // TODO: Request mount point then save it if allowed.
             console.log('Requested mount point is: ', mountPoint);
             console.log('Response is: ', response);
-            if(response.status) {
+            if (response.status) {
                 console.log(mountPoint, ' successfully mounted.');
                 this.mountPoint = mountPoint;
             }
@@ -34,11 +35,17 @@ class Operations {
         return {
             // Called when a directory is being listed.
             readdir: (path, cb) => {
-                this.stub.readdir({path: path, mountpoint: this.mountPoint},
+                const currentUser = this.getCurrentUser();
+                this.stub.readdir({
+                        path: path, mountpoint: this.mountPoint,
+                        username: currentUser.username,
+                        userType: currentUser.userType,
+                        expirationDate: currentUser.expirationDate
+                    },
                     (err, response) => {
                         console.log('Mountpoint is: ', this.mountPoint);
-                        // console.log('here', response);
                         if (err) console.log(err);
+                        if(response.message) console.log(response.message);
                         if (response) return process.nextTick(cb, 0, response.filenames);
                         return process.nextTick(cb, 0);
                     });
@@ -93,15 +100,25 @@ class Operations {
 
             // Called when contents of a file is being read.
             read: (path, fd, buf, len, pos, cb) => {
+                const currentUser = this.getCurrentUser();
+
                 this.stub.read({
                     path: path, fd: fd,
                     buf: buf, len: len, pos: pos,
-                    mountpoint: this.mountPoint
+                    mountpoint: this.mountPoint,
+                    username: currentUser.username,
+                    userType: currentUser.userType,
+                    expirationDate: currentUser.expirationDate
                 }, (err, response) => {
-                    console.log('Mountpoint is: ', this.mountPoint);
-                    // if (err) console.log(err);
-                    buf.set(response.buf);
-                    process.nextTick(cb, buf.length);
+                    if(response.message) {
+                        console.log(response.message);
+                        process.nextTick(cb, 0);
+                    } else {
+                        console.log('Mountpoint is: ', this.mountPoint);
+                        // if (err) console.log(err);
+                        buf.set(response.buf);
+                        process.nextTick(cb, buf.length);
+                    }
                 });
             },
 
