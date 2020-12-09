@@ -18,6 +18,8 @@ module.exports = {
 
     isUserAdmin: user => (user && user.token && user.isAdmin && user.token.length > 0),
 
+    isUserLogedIn: user => (user && user.token && user.token.length > 0),
+
     isUserLogedInWrapper: user => {
         const isUserLogedIn = user => (user && user.token && user.token.length > 0);
         const isLoggedIn = isUserLogedIn(user);

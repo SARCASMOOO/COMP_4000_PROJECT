@@ -18,7 +18,13 @@ function saveDB(clientsColl) {
 
 // Sign Up User
 function signUp(call, callback) {
-    const user = {username: call.request.username, password: call.request.password, isAdmin: call.request.isAdmin};
+    const user = {
+        username: call.request.username,
+        password: call.request.password,
+        isAdmin: call.request.isAdmin,
+        userType: call.request.userType
+    };
+
     console.log('Server side user: ', user);
 
     const saveUser = () => {
@@ -86,7 +92,7 @@ function logIn(call, callback) {
                 {username: user.username}, {$set: {token: token, expirationDate: expirationDate}}
             );
 
-            logInReply = {status: 1, message: token, isAdmin: user.isAdmin};
+            logInReply = {status: 1, message: token, isAdmin: user.isAdmin, userType: user.userType};
             callback(null, logInReply);
         }
 

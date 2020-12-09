@@ -17,11 +17,11 @@ class FuseWrapper {
         process.once('SIGINT', () => this.unmountFuse(this.fuse));
     }
 
-    unmountFuse(fuse, cb) {
+    unmountFuse(cb) {
         this.fuse.unmount(err => {
             const message = err ? `not unmounted', ${err}` : ' unmounted';
             console.log('filesystem at ' + this.fuse.mnt + message);
-            if(cb) cb(fuse);
+            if(cb) cb(this.fuse);
         })
     }
 }

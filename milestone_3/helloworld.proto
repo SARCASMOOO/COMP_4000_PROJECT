@@ -14,6 +14,7 @@ service Greeter {
   rpc LogIn (UserInfoRequest) returns (LoginReply) {}
   rpc updatePassword (PasswordReset) returns (UserInfoReply) {}
   rpc deleteAccount (DeleteAccountRequest) returns (UserInfoReply) {}
+  rpc setMountPoint (setMountPointRequest) returns (setMountPointReply) {}
 
   // Filesystem Calls
   rpc readdir (ReaddirMsg) returns (ReaddirReply) {}
@@ -29,23 +30,18 @@ service Greeter {
   rpc mkdir (MkdirMsg) returns (MkdirReply) {}
   rpc rmdir (RmdirMsg) returns (RmdirReply) {}
   rpc chmod (ChmodMsg) returns (ChmodReply) {}
-
-  // Mount Calls
-  rpc addMountPoint (addMountPointMsg) returns (UserInfoReply) {}
-
-
-//   Testing something
-  rpc test (testMsg) returns (testReply) {}
-}
-
-message testMsg {};
-message testReply {
-    string response = 1;
 }
 
 // Mount Messages
-message addMountPointMsg {
+message setMountPointRequest {
   string mountPoint = 1;
+  string username = 2;
+  string userType = 3;
+}
+
+message setMountPointReply {
+    string message = 1;
+    bool status = 2;
 }
 
 // Filesystem Messages
@@ -210,6 +206,7 @@ message SignUpRequest {
   bool isAdmin = 3;
   string adminName = 4;
   string adminToken = 5;
+  string userType = 6;
 }
 
 message UserInfoRequest {
@@ -221,6 +218,7 @@ message LoginReply {
   bool isAdmin = 1;
   int32 status = 2;
   string message = 3;
+  string userType = 4;
 }
 
 message UserInfoReply {

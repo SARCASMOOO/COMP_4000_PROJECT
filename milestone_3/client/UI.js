@@ -65,7 +65,7 @@ async function getUserCredentialsSignUp() {
     const question = [
         'Please enter your username.',
         'Please enter your password.',
-        'Type 1 if you are an admin.'];
+        'Type 1 if you are an admin, 2 for a trusted user, and anything else for a public user.'];
 
     return new Promise((accept, reject) => {
         const promise = askQuestion(question);
@@ -73,17 +73,17 @@ async function getUserCredentialsSignUp() {
             user.username = value[0];
             user.password = value[1];
             user.isAdmin = (value[2] === '1');
+
+            if (value[2] === '1') {
+                user.userType = 'admin'
+            } else if (value[2] === '2') {
+                user.userType = 'trusted';
+            } else {
+                user.userType = 'public';
+            }
             accept(user);
         });
     });
-}
-
-function stub() {
-    getUserCredentialsSignUp().then(value => console.log(value));
-    getUserName().then(value => console.log(value));
-    getUserPasswordSignUp().then(value => console.log(value));
-    getUserCredentialsLogin().then(value => console.log(value));
-    getUserCredentialsSignUp().then(value => console.log(value));
 }
 
 module.exports = {

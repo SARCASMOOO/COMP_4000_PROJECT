@@ -5,6 +5,29 @@ class Operations {
         this.stub = stub;
         console.log(this.stub);
         this.ENOENT = -2;
+        this.mountPoint = './';
+    }
+
+    setMountPoint(cb, curentUser, mountPoint) {
+        if(!curentUser.token) {
+            console.log('Please login before trying to mount a folder.');
+        }
+
+        // TODO: Send request asking for permission to mount
+        // If request passes then save mountpoint in operations
+        // Send mountpoint with requests then add on top of filesystem calls
+        // Once that is done then i need to check ACL for permission and alter calls as such.
+        this.stub.setMountPoint({mountPoint: mountPoint, username: curentUser.username, userType: curentUser.userType}, (err, response) => {
+            if (err) console.log(err);
+            // TODO: Request mount point then save it if allowed.
+            console.log('Requested mount point is: ', mountPoint);
+            console.log('Response is: ', response);
+            if(response.status) {
+                console.log(mountPoint, ' successfully mounted.');
+                this.mountPoint = mountPoint;
+            }
+            cb(this.stub, curentUser);
+        });
     }
 
     getOps() {
@@ -13,6 +36,7 @@ class Operations {
             readdir: (path, cb) => {
                 this.stub.readdir({path: path},
                     (err, response) => {
+                        console.log('Mountpoint is: ', this.mountPoint);
                         // console.log('here', response);
                         if (err) console.log(err);
                         if (response) return process.nextTick(cb, 0, response.filenames);
@@ -70,8 +94,9 @@ class Operations {
             // Called when contents of a file is being read.
             read: (path, fd, buf, len, pos, cb) => {
                 this.stub.read({path, fd, buf, len, pos}, (err, response) => {
+                    console.log('Mountpoint is: ', this.mountPoint);
                     // if (err) console.log(err);
-                    buf.set(response.buf)
+                    buf.set(response.buf);
                     process.nextTick(cb, buf.length);
                 });
             },

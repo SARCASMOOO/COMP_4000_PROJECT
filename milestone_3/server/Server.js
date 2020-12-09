@@ -11,7 +11,6 @@ const {MongoClient} = require('mongodb');
 // Helper classes
 const user = require('./User');
 const fileSystem = require('./FileSystem');
-const mount = require('./Mount').Mount;
 const ACL = require('./ACL/ACL').ACL;
 
 // Globals
@@ -49,6 +48,15 @@ function loadProto() {
     return grpc.loadPackageDefinition(packageDefinition).helloworld;
 }
 
+function setMountPoint(call, callback) {
+    console.log('Request is: ', call.request);
+    const {mountPoint, username, userType} = call.request;
+    const r = acl.isAccess(mountPoint, userType, username);
+    console.log('ACL returns: ', r);
+    const reply = {message: 'Mountpoint set.', status: r};
+    callback(null, reply);
+}
+
 function startServer(DOMAIN, PORT, hello_proto) {
     user.saveDB(clientsCollection);
 
@@ -75,7 +83,7 @@ function startServer(DOMAIN, PORT, hello_proto) {
         mkdir: fileSystem.mkdir,
         rmdir: fileSystem.rmdir,
         chmod: fileSystem.chmod,
-        addMountPoint: mount.addMountPoint
+        setMountPoint: setMountPoint
     };
 
     // The credentials part I borrowed from the following repository

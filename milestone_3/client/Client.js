@@ -10,10 +10,10 @@ const fs = require('fs');
 const fuseWrapper = require('./FuseWrapper');
 const User = require('./User');
 const Operations = require('./Operations');
+const UpdateLoop = require('./Update');
 
 class Client {
     constructor(domain, port) {
-        this.user = new User();
         this.curentUser = null;
         this.address = domain + port;
     }
@@ -48,7 +48,7 @@ class Client {
     }
 
     getOperations(stub) {
-        if(this.operations) return this.operations;
+        if(this.operations) return this.operations.getOps();
         console.log('Stub is 2, ', stub);
         this.operations = new Operations(stub);
         return this.operations.getOps();
@@ -58,10 +58,13 @@ class Client {
         const credentials = this.getCredentials();
         const proto = this.getProto();
         const stub = this.getStub(credentials, proto);
-        // const operations = this.getOperations(stub);
-        // this.fuseWrapper = new fuseWrapper(operations);
-        // this.fuseWrapper.mountFuse(stub);
-
+        const operations = this.getOperations(stub);
+        this.fuseWrapper = new fuseWrapper(operations);
+        this.user = new User(this.operations);
+        this.fuseWrapper.mountFuse(stub);
+        this.updateLoop = new UpdateLoop(this.user, this.fuseWrapper);
+        const currentUser = this.user.curentUser;
+        this.updateLoop.update(stub, currentUser).then();
     }
 }
 

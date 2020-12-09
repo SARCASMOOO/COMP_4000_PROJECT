@@ -7,10 +7,10 @@
 */
 
 class Check {
-    constructor(ruleList) {
+    constructor(manageACL) {
         this.compareFunction = (rule1, rule2) => (rule1.path.length < rule2.path.length) ? -1 : 1;
         this.cleanRules = requestedRule => this.ruleList.sort(this.compareFunction).filter(rule => requestedRule.path.startsWith(rule.path));
-        this.ruleList = [];
+        manageACL.getRulesList().then(ruleList => this.ruleList = ruleList);
     }
 
     setRuleList(ruleList) {
@@ -44,7 +44,7 @@ class Check {
         return isAllowed;
     }
 
-    isAccess(requestedRule, userType) {
+    isAccess(requestedRule, userType, username) {
         // Admin may read/write all objects.
         if (userType === 'admin') return true;
 
@@ -64,7 +64,7 @@ class Check {
 
         // For all other cases that are not a special case
         // Follow the ACL algorithm for access.
-        const cleanedRulesList = this.cleanRules(requestedRule);
+        const cleanedRulesList = this.cleanRules(requestedRule).filter(rule => rule.username === username);
         return this.checkRules(cleanedRulesList, requestedRule);
     }
 }
