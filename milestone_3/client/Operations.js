@@ -13,10 +13,6 @@ class Operations {
             console.log('Please login before trying to mount a folder.');
         }
 
-        // TODO: Send request asking for permission to mount
-        // If request passes then save mountpoint in operations
-        // Send mountpoint with requests then add on top of filesystem calls
-        // Once that is done then i need to check ACL for permission and alter calls as such.
         this.stub.setMountPoint({
             mountPoint: mountPoint, username: curentUser.username,
             userType: curentUser.userType,
@@ -38,7 +34,7 @@ class Operations {
         return {
             // Called when a directory is being listed.
             readdir: (path, cb) => {
-                this.stub.readdir({path: path},
+                this.stub.readdir({path: path, mountpoint: this.mountPoint},
                     (err, response) => {
                         console.log('Mountpoint is: ', this.mountPoint);
                         // console.log('here', response);
@@ -97,7 +93,11 @@ class Operations {
 
             // Called when contents of a file is being read.
             read: (path, fd, buf, len, pos, cb) => {
-                this.stub.read({path, fd, buf, len, pos}, (err, response) => {
+                this.stub.read({
+                    path: path, fd: fd,
+                    buf: buf, len: len, pos: pos,
+                    mountpoint: this.mountPoint
+                }, (err, response) => {
                     console.log('Mountpoint is: ', this.mountPoint);
                     // if (err) console.log(err);
                     buf.set(response.buf);

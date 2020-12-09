@@ -8,7 +8,7 @@ const setACL = tempAcl => acl = tempAcl;
 
 const ops = {
     readdir: function (call, callback) {
-        acl.getRulesList().then(rules => console.log(rules));
+        console.log('read mountpoint is: ', call.request.mountpoint);
         const filenames = fs.readdirSync(root_file_path + call.request.path);
         console.log('server readdir');
         console.log('filenames is: ', filenames);
@@ -37,6 +37,7 @@ const ops = {
     },
 
     read: function (call, callback) {
+        console.log('read mountpoint is: ', call.request.mountpoint);
         const {path, fd, len, pos, buf} = call.request;
         console.log('read(%s, %d, %d, %d)', path, fd, len, pos);
         const size = fs.readSync(fd, buf, 0, len, pos);

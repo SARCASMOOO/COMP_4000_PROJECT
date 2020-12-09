@@ -94,6 +94,7 @@ message setMountPointReply {
 // Filesystem Messages
 message ReaddirMsg {
   string path = 1;
+  string mountpoint = 2;
 }
 
 message ReaddirReply {
@@ -137,6 +138,7 @@ message ReadMsg {
   bytes buf = 3;
   int32 len = 4;
   int32 pos = 5;
+  string mountpoint = 6;
 }
 
 message ReadReply {
