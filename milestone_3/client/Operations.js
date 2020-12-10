@@ -12,6 +12,8 @@ class Operations {
     setMountPoint(cb, curentUser, mountPoint) {
         if (!curentUser.token) {
             console.log('Please login before trying to mount a folder.');
+            cb(this.stub, curentUser);
+            return;
         }
 
         this.stub.setMountPoint({

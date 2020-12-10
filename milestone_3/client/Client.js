@@ -14,7 +14,6 @@ const UpdateLoop = require('./Update');
 
 class Client {
     constructor(domain, port) {
-        this.curentUser = null;
         this.address = domain + port;
     }
 
@@ -53,7 +52,6 @@ class Client {
 
     getOperations(stub) {
         if(this.operations) return this.operations.getOps();
-        console.log('Stub is 2, ', stub);
         this.operations = new Operations(stub, this.getCurrentUser);
         return this.operations.getOps();
     }
@@ -63,9 +61,10 @@ class Client {
         const proto = this.getProto();
         const stub = this.getStub(credentials, proto);
         const operations = this.getOperations(stub);
+
         this.fuseWrapper = new fuseWrapper(operations);
         this.user = new User(this.operations);
-        this.fuseWrapper.mountFuse(stub);
+        // this.fuseWrapper.mountFuse(stub);
         this.updateLoop = new UpdateLoop(this.user, this.fuseWrapper);
         const currentUser = this.user.curentUser;
         this.updateLoop.update(stub, currentUser).then();

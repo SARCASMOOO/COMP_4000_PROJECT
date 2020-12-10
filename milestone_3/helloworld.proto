@@ -41,6 +41,7 @@ service Greeter {
 // ACL Messages
 message createRuleForUserRequest {
     rule newRule = 1;
+    uint64 expirationDate = 2;
 }
 
 message createRuleForUserReply {
@@ -49,15 +50,18 @@ message createRuleForUserReply {
 
 message readRulesByUserRequest {
   string username = 1;
+  uint64 expirationDate = 2;
 }
 
 message readRulesByUserReply {
   repeated rule rules = 1;
+  string message = 2;
 }
 
 message updateRuleRequest {
   string ruleId = 1;
   rule update = 2;
+  uint64 expirationDate = 3;
 }
 
 message updateRuleReply {

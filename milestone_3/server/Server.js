@@ -57,9 +57,12 @@ function setMountPoint(call, callback) {
 
     console.log('Request is: ', call.request);
     const {mountPoint, username, userType} = call.request;
-    const r = acl.isAccess(mountPoint, userType, username);
+    const r = acl.isAccess({
+        path: mountPoint,
+        permissions: 'r'
+    }, userType, username);
     console.log('ACL returns: ', r);
-    const reply = {message: 'Mountpoint set.', status: r};
+    const reply = {message: 'Mountpoint status: ', status: r};
     callback(null, reply);
 }
 
@@ -128,6 +131,10 @@ main();
 
 // ACL functions
 function createRuleForUser(call, callback) {
+    if(isTokenExpired(call.request.expirationDate)) {
+        callback(null, {message: 'Token is expired please log in.'});
+    }
+
     const rule = call.request.newRule;
     acl.createRuleForUser(rule).then(() => {
         callback(null, {message: 'New rule was created.'});
@@ -136,6 +143,12 @@ function createRuleForUser(call, callback) {
 
 function readRulesByUser(call, callback) {
     const username = call.request.username;
+
+    if(isTokenExpired(call.request.expirationDate)) {
+        callback(null, {message: 'Token is expired please log in.'});
+        return;
+    }
+
     acl.readRulesByUser(username).then(rules => {
         callback(null, {rules: rules});
     });
@@ -145,7 +158,10 @@ function updateRule(call, callback) {
     const ruleId = call.request.ruleId;
     const update = call.request.update;
 
-    acl.updateRule(ruleId, update).then(() => {
+    console.log(update);
+
+    acl.updateRule(ruleId, update).then((a) => {
+        console.log(a);
         callback(null, {message: 'Rule updated'});
     });
 }

@@ -43,9 +43,9 @@ class User {
     updatePassword = async (stub, cb) => {
         if (!util.isUserLogedInWrapper(this.curentUser)) {
             cb(stub, this.curentUser);
-            return
+            return;
         }
-        ;
+
 
         const newPassword = await UI.getUserPasswordSignUp();
 
@@ -72,6 +72,7 @@ class User {
             console.log(`Failed to update password. Message: ', ${response.message}`);
         } else {
             console.log(`Response: :', ${response.message}`);
+            // FIXME: This should not happen if it is an admin call.
             this.curentUser.token = null;
         }
         cb(stub, this.curentUser);
@@ -96,6 +97,7 @@ class User {
         let msg = `Failed to remove account: ${response.message}`;
         if (response.status === 1) msg = 'Account was removed.';
         console.log(msg);
+        // FIXME: This should not clear if it is an admin call.
         this.curentUser = {};
         cb(stub, this.curentUser);
     }
@@ -123,7 +125,7 @@ class User {
     }
 
     adminDeleteAccount = async (stub, cb) => {
-        console.log('currentUser is: ', this.curentUser);
+        console.log('current User is: ', this.curentUser);
         const isAdmin = util.isUserAdmin(this.curentUser);
 
         if (isAdmin) {
@@ -179,8 +181,8 @@ class User {
         );
     }
 
-    createRuleForUserRequest(stub) {
-        if(!this.curentUser.username) {
+    createRuleForUserRequest(stub, cb) {
+        if (!this.curentUser.username) {
             console.log('Please login first.');
         }
 
@@ -195,7 +197,7 @@ class User {
         UI.askQuestion(question).then(results => {
                 const path = results[0];
                 let mode;
-                if(results[0] === '1') {
+                if (results[1] === '1') {
                     mode = 'allow'
                 } else {
                     mode = 'deny';
@@ -209,25 +211,33 @@ class User {
                 }
 
                 console.log('Requested rule is: ', rule);
-                stub.createRuleForUser({rule: rule}, (err, response) => {
+                stub.createRuleForUser({
+                    newRule: rule,
+                    expirationDate: this.curentUser.expirationDate
+                }, (err, response) => {
                     console.log('Response is: ', response);
+                    cb(stub, this.curentUser);
                 });
             }
         );
     }
 
-    readRulesByUserRequest(stub) {
-        if(!this.curentUser.username) {
+    readRulesByUserRequest(stub, cb) {
+        if (!this.curentUser.username) {
             console.log('Please login first.');
         }
 
-        stub.readRulesByUser({username: this.curentUser.username}, (err, response) => {
+        stub.readRulesByUser({
+            username: this.curentUser.username,
+            expirationDate: this.curentUser.expirationDate
+        }, (err, response) => {
             console.log('Response is: ', response);
+            cb(stub, this.curentUser);
         })
     }
 
-    updateRuleRequest(stub) {
-        if(!this.curentUser.username) {
+    updateRuleRequest(stub, cb) {
+        if (!this.curentUser.username) {
             console.log('Please login first.');
         }
 
@@ -243,7 +253,7 @@ class User {
         UI.askQuestion(question).then(results => {
                 const path = results[0];
                 let mode;
-                if(results[0] === '1') {
+                if (results[1] === '1') {
                     mode = 'allow'
                 } else {
                     mode = 'deny';
@@ -261,9 +271,10 @@ class User {
                 console.log('Requested rule is: ', rule);
                 stub.updateRule({
                     ruleId: ruleId,
-                    rule: rule
+                    update: rule
                 }, (err, response) => {
                     console.log('Response is: ', response);
+                    cb(stub, this.curentUser);
                 });
             }
         );

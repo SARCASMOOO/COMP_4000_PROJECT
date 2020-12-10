@@ -25,7 +25,7 @@ function signUp(call, callback) {
         userType: call.request.userType
     };
 
-    console.log('Server side user: ', user);
+    console.log('Attempting to sign up user: ', user);
 
     const saveUser = () => {
         const BCRYPT_SALT_ROUNDS = 12;
@@ -41,14 +41,18 @@ function signUp(call, callback) {
     }
 
     if (call.request.adminName && call.request.adminToken) {
+        // TODO: If this is an admin we need to check expiration token
+        if(isTokenExpired(call.request.expirationDate)) {
+            const msg = "Token is expired please login first.";
+            callback(null, {status: 0, message: msg});
+        }
+
         // Confirm this admin account is correct then move on if not responde with fail.
         const BCRYPT_SALT_ROUNDS = 12;
         clientsCollection.findOne({username: call.request.adminName}).then(user => {
             let signUpReply;
 
             if (user && user.token === call.request.adminToken) {
-                // If this is true we can sign up user.
-                console.log('Admin is authenticated');
                 clientsCollection.find({username: call.request.username}).limit(1).count().then(count => {
                     if (count < 1) {
                         console.log('Save user');
@@ -126,6 +130,7 @@ function updatePassword(call, callback) {
     const newPassword = call.request.newPassword;
     const isAdmin = !!call.request.isAdmin;
     const expirationDate = call.request.expirationDate;
+
     if(isTokenExpired(expirationDate)) {
         const msg = "Token is expired please login first.";
         callback(null, {status: 0, message: msg});
@@ -181,15 +186,10 @@ function deleteAccount(call, callback) {
     console.log(username);
     console.log(token);
 
-    // isAdmin: currentUser.isAdmin, adminName: currentUser.adminName, adminToken: currentUser.adminToken
-    // TODO: Confirm admin access then run delete.
-    console.log('Admin name:', call.request.adminName, 'Admin token: ', call.request.adminToken)
     if (call.request.adminName && call.request.adminToken) {
         // Admin path
-        console.log('hello1');
         clientsCollection.findOne({username: call.request.adminName}).then(user => {
             let logInReply;
-            console.log('hello2');
             console.log('Submited token', user.token, ', Admin token ', call.request.adminToken);
             if (user && user.token === call.request.adminToken) {
                 // Now we checked for an admin we can remove the old user

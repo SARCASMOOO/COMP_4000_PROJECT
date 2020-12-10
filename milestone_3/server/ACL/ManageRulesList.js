@@ -1,3 +1,5 @@
+const ObjectID = require('mongodb').ObjectID;
+
 class ManageRulesList {
     constructor(ruleListCollection) {
         this.ruleListCollection = ruleListCollection;
@@ -16,6 +18,8 @@ class ManageRulesList {
     }
 
     updateRule(ruleId, update) {
+        console.log('Overriding rule id');
+        ruleId = ObjectID(ruleId);
         return this.ruleListCollection.updateOne({_id: ruleId}, {$set: update});
     }
 

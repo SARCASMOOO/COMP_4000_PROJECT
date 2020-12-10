@@ -14,7 +14,7 @@ class UpdateLoop {
 
         const msg = ` Please type one of the following commands: 0 to exit, 1 for sign up, 2 for login, 3 to update password, 4 to remove account.
     If you are an admin type 5 to create a new user, 6 to delete a specific user, and 7 to update a password for a specific user.
-    Type 8 to request to mount a folder.`;
+    Type 8 to request to mount a folder, 9  to create a new rule, 10 to read rules for a user, type 11 to update a rule.`;
 
         if (util.isUserLogedIn(curentUser)) {
             console.log('Logged in as: ', curentUser);
@@ -54,13 +54,13 @@ class UpdateLoop {
                     this.user.setMountPoint(this.update);
                     break;
                 case "9":
-                    this.user.createRuleForUserRequest(stub);
+                    this.user.createRuleForUserRequest(stub, this.update);
                     break;
                 case "10":
-                    this.user.readRulesByUserRequest(stub);
+                    this.user.readRulesByUserRequest(stub, this.update);
                     break;
                 case "11":
-                    this.user.updateRuleRequest(stub);
+                    this.user.updateRuleRequest(stub, this.update);
                     break;
                 default:
                     console.log('Invalid option. Please select one of the options provided.');
