@@ -21,8 +21,8 @@ class FuseWrapper {
         this.fuse.unmount(err => {
             const message = err ? `not unmounted', ${err}` : ' unmounted';
             console.log('filesystem at ' + this.fuse.mnt + message);
-            if(cb) cb(this.fuse);
-        })
+            process.exit(1);
+        });
     }
 }
 

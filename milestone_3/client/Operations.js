@@ -5,7 +5,7 @@ class Operations {
         this.stub = stub;
         console.log(this.stub);
         this.ENOENT = -2;
-        this.mountPoint = './';
+        this.mountPoint = '/';
         this.getCurrentUser = getCurrentUser;
     }
 
@@ -47,7 +47,7 @@ class Operations {
                     (err, response) => {
                         console.log('Mountpoint is: ', this.mountPoint);
                         if (err) console.log(err);
-                        if(response.message) console.log(response.message);
+                        if (response.message) console.log(response.message);
                         if (response) return process.nextTick(cb, 0, response.filenames);
                         return process.nextTick(cb, 0);
                     });
@@ -55,7 +55,10 @@ class Operations {
 
             // Called before the filesystem accessed a file.
             access: (path, mode, cb) => {
-                this.stub.access({path: path, mode: mode},
+                this.stub.access({
+                        path: path, mode: mode,
+                        mountpoint: this.mountPoint
+                    },
                     (err, response) => {
                         // console.log('here', response);
                         if (err) console.log(err);
@@ -65,7 +68,7 @@ class Operations {
 
             // Called when a path is being stat'ed.
             getattr: (path, cb) => {
-                this.stub.getattr({path: path},
+                this.stub.getattr({path: path, mountpoint: this.mountPoint},
                     (err, response) => {
                         // console.log('here11', response);
                         // if (err) console.log(err);
@@ -87,12 +90,14 @@ class Operations {
             // Called when a path is being opened.
             open: async (path, flags, cb) => {
                 const tempPromise = new Promise((resolve, reject) => {
-                    this.stub.open({path: path, flags: flags}, (err, response) => {
-                        if (err) console.log(err);
-                        // console.log('open fd is: ', response.fd);
-                        // console.log('response is: ', response);
-                        resolve(response.fd);
-                    })
+                    this.stub.open({path: path, flags: flags, mountpoint: this.mountPoint},
+                        (err, response) => {
+                            if (err) console.log(err);
+                            // console.log('open fd is: ', response.fd);
+                            // console.log('response is: ', response);
+                            resolve(response.fd);
+                        }
+                    )
                 });
 
                 await tempPromise.then(fd => {
@@ -112,7 +117,7 @@ class Operations {
                     userType: currentUser.userType,
                     expirationDate: currentUser.expirationDate
                 }, (err, response) => {
-                    if(response.message) {
+                    if (response.message) {
                         console.log(response.message);
                         process.nextTick(cb, 0);
                     } else {
@@ -126,51 +131,55 @@ class Operations {
 
             // Called when a directory is being opened.
             opendir: (path, flags, cb) => {
-                this.stub.opendir({path: path, flags: flags}, (err, response) => {
+                this.stub.opendir({path: path, flags: flags, mountpoint: this.mountPoint}, (err, response) => {
                     process.nextTick(cb, 0);
                 });
             },
 
             // Called when the filesystem is being stat'ed.
             statfs: (path, cb) => {
-                this.stub.statfs({path: path}, (err, response) => {
+                this.stub.statfs({path: path, mountpoint: this.mountPoint}, (err, response) => {
                     process.nextTick(cb, 0, response.statfs);
                 });
             },
 
             // Called when a new file is being opened.
             create: (path, mode, cb) => {
-                this.stub.create({path: path, mode: mode}, (err, response) => {
+                this.stub.create({path: path, mode: mode, mountpoint: this.mountPoint}, (err, response) => {
                     process.nextTick(cb, 0);
                 });
             },
 
             // Called when a file is being unlinked.
             unlink: (path, cb) => {
-                this.stub.unlink({path: path}, (err, response) => {
+                this.stub.unlink({path: path, mountpoint: this.mountPoint}, (err, response) => {
                     process.nextTick(cb, 0);
                 });
             },
 
             // Called when a new directory is being created.
             mkdir: (path, mode, cb) => {
-                this.stub.mkdir({path: path, mode: mode}, (err, response) => {
+                this.stub.mkdir({path: path, mode: mode, mountpoint: this.mountPoint}, (err, response) => {
                     process.nextTick(cb, 0);
                 })
             },
 
             // Called when a directory is being removed.
             rmdir: (path, cb) => {
-                this.stub.rmdir({path: path}, (err, response) => {
+                this.stub.rmdir({path: path, mountpoint: this.mountPoint}, (err, response) => {
                     process.nextTick(cb, 0);
                 })
             },
 
             // Called when the mode of a path is being changed.
             chmod: (path, mode, cb) => {
-                this.stub.chmod({path: path, mode: mode}, (err, response) => {
-                    process.nextTick(cb, 0);
-                })
+                this.stub.chmod(
+                    {
+                        path: path, mode: mode,
+                        mountpoint: this.mountPoint
+                    }, (err, response) => {
+                        process.nextTick(cb, 0);
+                    })
             }
 
             // Called when a file is being written to.

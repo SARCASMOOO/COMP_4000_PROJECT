@@ -1,6 +1,7 @@
 // Paths
 const PROTO_PATH = __dirname + '/../helloworld.proto';
 const secureCertificate = __dirname + '/../cert/comp4000.com.crt';
+const root_file_path = '/Users/main/Coding/school/COMP_4000/milestone_3/server/real';
 
 // Modules
 const grpc = require('grpc');
@@ -63,7 +64,19 @@ function setMountPoint(call, callback) {
     }, userType, username);
     console.log('ACL returns: ', r);
     const reply = {message: 'Mountpoint status: ', status: r};
-    callback(null, reply);
+    if(r) {
+        // Create the mount point
+        try {
+            fs.mkdir(root_file_path + mountPoint, { recursive: true }, (err) => {
+                if (err) console.log(err);
+                callback(null, reply);
+            });
+        } catch (e) {
+            callback(null, reply);
+        }
+    } else {
+        callback(null, reply);
+    }
 }
 
 function startServer(DOMAIN, PORT, hello_proto) {
@@ -131,9 +144,9 @@ main();
 
 // ACL functions
 function createRuleForUser(call, callback) {
-    if(isTokenExpired(call.request.expirationDate)) {
-        callback(null, {message: 'Token is expired please log in.'});
-    }
+    // if(isTokenExpired(call.request.expirationDate)) {
+    //     callback(null, {message: 'Token is expired please log in.'});
+    // }
 
     const rule = call.request.newRule;
     acl.createRuleForUser(rule).then(() => {

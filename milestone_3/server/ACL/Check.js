@@ -28,7 +28,7 @@ class Check {
 
     checkRules(cleanedRulesList, requestedRule) {
         let rc = 0;
-        let isAllowed = false;
+        let isAllowed = true;
         let rule;
 
         for (rule of cleanedRulesList) {
@@ -53,13 +53,14 @@ class Check {
             return (userType === 'trusted');
         }
 
+        if (requestedRule.path.endsWith('.admin')) {
+            return false;
+        }
+
         // Trusted users and admins may read / write all public objects
         // Public users may only read public objects
         if (requestedRule.path.endsWith('.public')) {
-            if(userType !== 'public') return true;
-            // If public user and you try to read the file allow.
-            // If a public user does anything other then read then deny.
-            return (requestedRule.permissions === 'r')
+            return true;
         }
 
         // For all other cases that are not a special case

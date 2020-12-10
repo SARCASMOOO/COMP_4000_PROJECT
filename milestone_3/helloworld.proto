@@ -112,6 +112,7 @@ message ReaddirReply {
 message AccessMsg {
   string path = 1;
   int32 mode = 2;
+  string mountpoint = 3;
 }
 
 message AccessReply {
@@ -120,6 +121,7 @@ message AccessReply {
 
 message GetattrMsg {
   string path = 1;
+  string mountpoint = 2;
 }
 
 // TODO: stat is an object
@@ -133,6 +135,7 @@ message GetattrReply {
 message OpenMsg {
   string path = 1;
   int32 flags = 2;
+  string mountpoint = 3;
 }
 
 message OpenReply {
@@ -161,12 +164,14 @@ message ReadReply {
 message OpendirMsg {
   string path = 1;
   int32 flags = 2;
+  string mountpoint = 3;
 }
 
 message OpendirReply {}
 
 message StatfsMsg {
   string path = 1;
+  string mountpoint = 2;
 }
 
 message StatfsReply {
@@ -176,6 +181,7 @@ message StatfsReply {
 message CreateMsg {
   string path = 1;
   int32 mode = 2;
+  string mountpoint = 3;
 }
 
 message CreateReply {}
@@ -193,6 +199,7 @@ message WriteReply {}
 
 message UnlinkMsg {
   string path = 1;
+  string mountpoint = 2;
 }
 
 message UnlinkReply {}
@@ -200,12 +207,14 @@ message UnlinkReply {}
 message MkdirMsg {
   string path = 1;
   int32 mode = 2;
+  string mountpoint = 3;
 }
 
 message MkdirReply {}
 
 message RmdirMsg {
   string path = 1;
+  string mountpoint = 2;
 }
 
 message RmdirReply {}
@@ -213,6 +222,7 @@ message RmdirReply {}
 message ChmodMsg {
   string path = 1;
   int32 mode = 2;
+  string mountpoint = 3;
 }
 
 message ChmodReply {}

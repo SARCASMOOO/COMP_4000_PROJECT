@@ -15,10 +15,19 @@ const UpdateLoop = require('./Update');
 class Client {
     constructor(domain, port) {
         this.address = domain + port;
+        const credentials = this.getCredentials();
+        const proto = this.getProto();
+        this.stub = this.getStub(credentials, proto);
+        const operations = this.getOperations(this.stub);
+
+        this.fuseWrapper = new fuseWrapper(operations);
+        this.user = new User(this.operations);
+        this.fuseWrapper.mountFuse(this.stub);
+        this.updateLoop = new UpdateLoop(this.user, this.fuseWrapper);
     }
 
-    getCurrentUser() {
-        return this.updateLoop.curentUser
+    getCurrentUser = () => {
+        return this.user.curentUser;
     }
 
     // https://github.com/gbahamondezc/node-grpc-ssl/blob/master/
@@ -57,17 +66,8 @@ class Client {
     }
 
     main() {
-        const credentials = this.getCredentials();
-        const proto = this.getProto();
-        const stub = this.getStub(credentials, proto);
-        const operations = this.getOperations(stub);
-
-        this.fuseWrapper = new fuseWrapper(operations);
-        this.user = new User(this.operations);
-        // this.fuseWrapper.mountFuse(stub);
-        this.updateLoop = new UpdateLoop(this.user, this.fuseWrapper);
         const currentUser = this.user.curentUser;
-        this.updateLoop.update(stub, currentUser).then();
+        this.updateLoop.update(this.stub, currentUser).then();
     }
 }
 
